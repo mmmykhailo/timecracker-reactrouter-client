@@ -27,6 +27,8 @@ import {
   type Reports,
   type TimeEntry,
 } from "~/lib/reports";
+import TimeEntryForm from "~/components/entry-edit-form";
+import { Dialog, DialogContent } from "~/components/ui/dialog";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -226,6 +228,14 @@ export default function Home() {
           ))}
         </div>
       </div>
+      <Dialog>
+        <DialogContent>
+          <TimeEntryForm
+            reports={reports}
+            onSave={(d, i, e) => console.log(d, i, e)}
+          />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
