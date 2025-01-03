@@ -21,6 +21,7 @@ import { useEffect, useMemo, useState } from "react";
 import HoursCalendar from "~/components/hours-calendar";
 import {
   calculateDailyDurations,
+  formatDuration,
   parseTimeTrackerReport,
   TIMEREPORT_FILENAME_PREFIX,
   type Reports,
@@ -210,7 +211,7 @@ export default function Home() {
                   {reportEntry.start} - {reportEntry.end}
                 </div>
                 <div className="text-muted-foreground text-sm">
-                  {reportEntry.duration} mins
+                  {formatDuration(reportEntry.duration)}
                 </div>
                 <div className="flex gap-2 mt-1">
                   <Button variant="outline" size="icon">
