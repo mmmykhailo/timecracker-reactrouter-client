@@ -1,0 +1,95 @@
+export const TIMEREPORT_FILENAME_PREFIX = "timereport - ";
+
+export type TimeEntry = {
+  start: string;
+  end: string;
+  duration: number; // duration in minutes
+  project: string | null;
+  activity: string | null;
+  description: string | null;
+};
+
+export type Reports = Record<string, Array<TimeEntry>>;
+
+export type DailyDurations = Record<string, number>;
+
+function parseTimeIntoMinutes(timeStr: string): number {
+  const [hours, minutes] = timeStr.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
+function calculateDuration(start: string, end: string): number {
+  const startMinutes = parseTimeIntoMinutes(start);
+  const endMinutes = parseTimeIntoMinutes(end);
+  return endMinutes - startMinutes;
+}
+
+export function formatDuration(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  if (hours === 0) return `${remainingMinutes}m`;
+  if (remainingMinutes === 0) return `${hours}h`;
+  return `${hours}h ${remainingMinutes}m`;
+}
+
+export const calculateDailyDurations = (reports: Reports): DailyDurations => {
+  return Object.entries(reports).reduce((acc, [date, dayEntries]) => {
+    // Sum up all durations for the day
+    const duration = dayEntries.reduce((sum, entry) => sum + entry.duration, 0);
+
+    return {
+      ...acc,
+      [date]: duration,
+    };
+  }, {});
+};
+
+export function parseTimeTrackerReport(input: string): TimeEntry[] {
+  const lines = input.split("\n").filter((line) => line.trim());
+  const entries: TimeEntry[] = [];
+
+  for (let i = 0; i < lines.length - 1; i++) {
+    const currentLine = lines[i];
+    const nextLine = lines[i + 1];
+
+    // Extract start time from current line
+    const startTime = currentLine.split(" - ")[0].trim();
+    // Extract end time from next line
+    const endTime = nextLine.split(" - ")[0].trim();
+
+    const duration = calculateDuration(startTime, endTime);
+
+    // Split the current line by ' - '
+    const parts = currentLine.split(" - ");
+
+    // Initialize entry with default values
+    const entry: TimeEntry = {
+      start: startTime,
+      end: endTime,
+      duration: duration,
+      project: null,
+      activity: null,
+      description: null,
+    };
+
+    if (parts.length >= 2) {
+      entry.project = parts[1] || null;
+
+      if (parts.length >= 3) {
+        // Check if the third part is an activity or description
+        if (parts.length >= 4) {
+          entry.activity = parts[2].trim();
+          // Join the rest of the parts as description
+          entry.description = parts.slice(3).join(" - ").trim();
+        } else {
+          entry.description = parts[2].trim();
+        }
+      }
+    }
+
+    entries.push(entry);
+  }
+
+  return entries;
+}
