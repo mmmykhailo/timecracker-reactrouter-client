@@ -45,7 +45,7 @@ export const calculateDailyDurations = (reports: Reports): DailyDurations => {
   }, {});
 };
 
-export function parseTimeTrackerReport(input: string): TimeEntry[] {
+export function parseReport(input: string): TimeEntry[] {
   const lines = input.split("\n").filter((line) => line.trim());
   const entries: TimeEntry[] = [];
 
@@ -123,8 +123,39 @@ export async function readReports(rootHandle: FileSystemDirectoryHandle) {
   await readDirectory(rootHandle);
 
   return rawReports.reduce((prev, curr) => {
-    prev[curr.name] = parseTimeTrackerReport(curr.content);
+    prev[curr.name] = parseReport(curr.content);
 
     return prev;
   }, {} as Record<string, Array<TimeEntry>>);
+}
+
+export function serializeReport(entries: TimeEntry[]): string {
+  let output = "";
+
+  for (const entryIndex of entries.keys()) {
+    const entry = entries[entryIndex];
+    const nextEntryIndex = entryIndex + 1;
+    const nextEntry =
+      nextEntryIndex < entries.length ? entries[nextEntryIndex] : null;
+
+    let line = entry.start;
+
+    if (entry.project) {
+      line += ` - ${entry.project}`;
+
+      if (entry.activity && entry.description) {
+        line += ` - ${entry.activity} - ${entry.description}`;
+      } else if (entry.description) {
+        line += ` - ${entry.description}`;
+      }
+    }
+
+    output += line + "\n";
+
+    if (!nextEntry || entry.end !== nextEntry.start) {
+      output += `${entry.end} - \n`;
+    }
+  }
+
+  return output;
 }

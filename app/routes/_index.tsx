@@ -22,11 +22,8 @@ import HoursCalendar from "~/components/hours-calendar";
 import {
   calculateDailyDurations,
   formatDuration,
-  parseTimeTrackerReport,
   readReports,
-  TIMEREPORT_FILENAME_PREFIX,
   type Reports,
-  type TimeEntry,
 } from "~/lib/reports";
 import TimeEntryForm from "~/components/entry-edit-form";
 import { Dialog, DialogContent } from "~/components/ui/dialog";
@@ -167,33 +164,33 @@ export default function Home() {
         <div className="col-span-4 flex flex-col gap-4">
           {selectedReport?.length ? (
             selectedReport.map((reportEntry) => (
-            <div className="flex justify-between gap-2 rounded-lg border p-3 text-left text-sm">
-              <div>
-                <div className="font-semibold">{reportEntry.project}</div>
-                <div className="font-semibold text-sm">
-                  {reportEntry.activity}
+              <div className="flex justify-between gap-2 rounded-lg border p-3 text-left text-sm">
+                <div>
+                  <div className="font-semibold">{reportEntry.project}</div>
+                  <div className="font-semibold text-sm">
+                    {reportEntry.activity}
+                  </div>
+                  <div className="text-muted-foreground text-sm">
+                    {reportEntry.description}
+                  </div>
                 </div>
-                <div className="text-muted-foreground text-sm">
-                  {reportEntry.description}
+                <div className="flex flex-col items-end justify-between gap-1 flex-shrink-0">
+                  <div className="text-muted-foreground text-sm">
+                    {reportEntry.start} - {reportEntry.end}
+                  </div>
+                  <div className="text-muted-foreground text-sm">
+                    {formatDuration(reportEntry.duration)}
+                  </div>
+                  <div className="flex gap-2 mt-1">
+                    <Button variant="outline" size="icon">
+                      <Edit size={12} />
+                    </Button>
+                    <Button variant="outline" size="icon">
+                      <Trash size={12} />
+                    </Button>
+                  </div>
                 </div>
               </div>
-              <div className="flex flex-col items-end justify-between gap-1 flex-shrink-0">
-                <div className="text-muted-foreground text-sm">
-                  {reportEntry.start} - {reportEntry.end}
-                </div>
-                <div className="text-muted-foreground text-sm">
-                  {formatDuration(reportEntry.duration)}
-                </div>
-                <div className="flex gap-2 mt-1">
-                  <Button variant="outline" size="icon">
-                    <Edit size={12} />
-                  </Button>
-                  <Button variant="outline" size="icon">
-                    <Trash size={12} />
-                  </Button>
-                </div>
-              </div>
-            </div>
             ))
           ) : (
             <div className="rounded-lg border p-3 text-muted-foreground">
