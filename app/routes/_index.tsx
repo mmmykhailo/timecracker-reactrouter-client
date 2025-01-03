@@ -1,3 +1,6 @@
+import { addDays, format, isSameDay } from "date-fns";
+import { useEffect, useMemo, useState } from "react";
+import { get as idbGet, set as idbSet } from "idb-keyval";
 import { Button } from "~/components/ui/button";
 import type { Route } from "./+types/_index";
 import { AppHeader } from "~/components/app-header";
@@ -5,7 +8,6 @@ import {
   CalendarIcon,
   ChevronLeft,
   ChevronRight,
-  Delete,
   Edit,
   Trash,
 } from "lucide-react";
@@ -16,13 +18,12 @@ import {
 } from "~/components/ui/popover";
 import { cn } from "~/lib/utils";
 import { Calendar } from "~/components/ui/calendar";
-import { addDays, format, isSameDay } from "date-fns";
-import { useEffect, useMemo, useState } from "react";
 import HoursCalendar from "~/components/hours-calendar";
 import {
   calculateDailyDurations,
   formatDuration,
   parseTimeTrackerReport,
+  readReports,
   TIMEREPORT_FILENAME_PREFIX,
   type Reports,
   type TimeEntry,
@@ -50,64 +51,31 @@ export default function Home() {
 
   const [reports, setReports] = useState<Reports>({});
 
-  useEffect(() => {
-    // Example usage:
-    const sampleInput = `14:00 - project - PR review
-  14:30 - project - FE sync
-15:00 - project - activity - task description (rest of the line)
-18:00 - `;
-
-    const result = parseTimeTrackerReport(sampleInput);
-    console.log(result);
-  }, []);
-
   const handleOpenFolder = async () => {
     if (!("showDirectoryPicker" in window)) {
       return null;
     }
 
-    const rootHandle = await window.showDirectoryPicker();
-    const rawReports: Array<{
-      name: string;
-      content: string;
-    }> = [];
+    const rootHandle: FileSystemDirectoryHandle =
+      (await idbGet("rootHandle")) || (await window.showDirectoryPicker());
 
-    const readDirectory = async (dirHandle: FileSystemDirectoryHandle) => {
-      for await (const entry of dirHandle.values()) {
-        if (entry.kind === "file") {
-          if (!entry.name.startsWith(TIMEREPORT_FILENAME_PREFIX)) {
-            continue;
-          }
-          // Read the file and add its content to the reports array
-          const file = await entry.getFile();
-          const content = await file.text();
-          rawReports.push({
-            name: entry.name.replace(TIMEREPORT_FILENAME_PREFIX, ""),
-            content,
-          });
-        } else if (entry.kind === "directory") {
-          // Recursively read subdirectories
-          await readDirectory(entry);
-        }
-      }
-    };
+    await idbSet("rootHandle", rootHandle);
 
-    await readDirectory(rootHandle);
-
-    console.log("Reports:", rawReports);
-
-    setReports(
-      rawReports.reduce((prev, curr) => {
-        prev[curr.name] = parseTimeTrackerReport(curr.content);
-
-        return prev;
-      }, {} as Record<string, Array<TimeEntry>>)
-    );
+    setReports(await readReports(rootHandle));
   };
 
   useEffect(() => {
-    console.log(reports);
-  }, [reports]);
+    const initiateReadReports = async () => {
+      const rootHandle: FileSystemDirectoryHandle | undefined = await idbGet(
+        "rootHandle"
+      );
+      if (rootHandle) {
+        setReports(await readReports(rootHandle));
+      }
+    };
+
+    initiateReadReports();
+  }, []);
 
   const selectedReport = useMemo(() => {
     if (!selectedDate) {

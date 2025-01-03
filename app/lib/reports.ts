@@ -93,3 +93,38 @@ export function parseTimeTrackerReport(input: string): TimeEntry[] {
 
   return entries;
 }
+
+export async function readReports(rootHandle: FileSystemDirectoryHandle) {
+  const rawReports: Array<{
+    name: string;
+    content: string;
+  }> = [];
+
+  const readDirectory = async (dirHandle: FileSystemDirectoryHandle) => {
+    for await (const entry of dirHandle.values()) {
+      if (entry.kind === "file") {
+        if (!entry.name.startsWith(TIMEREPORT_FILENAME_PREFIX)) {
+          continue;
+        }
+        // Read the file and add its content to the reports array
+        const file = await entry.getFile();
+        const content = await file.text();
+        rawReports.push({
+          name: entry.name.replace(TIMEREPORT_FILENAME_PREFIX, ""),
+          content,
+        });
+      } else if (entry.kind === "directory") {
+        // Recursively read subdirectories
+        await readDirectory(entry);
+      }
+    }
+  };
+
+  await readDirectory(rootHandle);
+
+  return rawReports.reduce((prev, curr) => {
+    prev[curr.name] = parseTimeTrackerReport(curr.content);
+
+    return prev;
+  }, {} as Record<string, Array<TimeEntry>>);
+}
