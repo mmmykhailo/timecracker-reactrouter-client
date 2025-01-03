@@ -165,7 +165,8 @@ export default function Home() {
           </div>
         </div>
         <div className="col-span-4 flex flex-col gap-4">
-          {selectedReport?.map((reportEntry) => (
+          {selectedReport?.length ? (
+            selectedReport.map((reportEntry) => (
             <div className="flex justify-between gap-2 rounded-lg border p-3 text-left text-sm">
               <div>
                 <div className="font-semibold">{reportEntry.project}</div>
@@ -193,7 +194,12 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          ))}
+            ))
+          ) : (
+            <div className="rounded-lg border p-3 text-muted-foreground">
+              No entries yet
+            </div>
+          )}
         </div>
       </div>
       <Dialog>
