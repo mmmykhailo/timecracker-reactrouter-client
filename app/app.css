@@ -83,6 +83,12 @@ body {
   }
 }
 
+@layer utilities {
+  .scrollbar-gutter-stable {
+    scrollbar-gutter: stable;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;
