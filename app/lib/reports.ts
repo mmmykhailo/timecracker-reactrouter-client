@@ -1,4 +1,14 @@
+import { getISOWeek, parse } from "date-fns";
+
 export const TIMEREPORT_FILENAME_PREFIX = "timereport - ";
+export const WEEK_DIR_NAME_REGEX = /^week (\d{2})$/i;
+export const YEAR_DIR_NAME_REGEX = /^\d{4}$/i;
+export const DATE_FORMAT = "yyyyMMdd";
+
+export type RawReport = {
+  name: string;
+  content: string;
+};
 
 export type ReportEntry = {
   start: string;
@@ -60,10 +70,8 @@ export function parseReport(input: string): ReportEntry[] {
 
     const duration = calculateDuration(startTime, endTime);
 
-    // Split the current line by ' - '
     const parts = currentLine.split(" - ");
 
-    // Initialize entry with default values
     const entry: ReportEntry = {
       start: startTime,
       end: endTime,
@@ -94,33 +102,72 @@ export function parseReport(input: string): ReportEntry[] {
   return entries;
 }
 
-export async function readReports(rootHandle: FileSystemDirectoryHandle) {
-  const rawReports: Array<{
-    name: string;
-    content: string;
-  }> = [];
-
-  const readDirectory = async (dirHandle: FileSystemDirectoryHandle) => {
-    for await (const entry of dirHandle.values()) {
-      if (entry.kind === "file") {
-        if (!entry.name.startsWith(TIMEREPORT_FILENAME_PREFIX)) {
-          continue;
-        }
-        // Read the file and add its content to the reports array
-        const file = await entry.getFile();
-        const content = await file.text();
-        rawReports.push({
-          name: entry.name.replace(TIMEREPORT_FILENAME_PREFIX, ""),
-          content,
-        });
-      } else if (entry.kind === "directory") {
-        // Recursively read subdirectories
-        await readDirectory(entry);
+async function readWeekDir(
+  weekDirHandle: FileSystemDirectoryHandle,
+  rawReports: Array<RawReport>
+) {
+  const weekDirNumber = parseInt(weekDirHandle.name.split(" ")[1], 10);
+  for await (const weekChild of weekDirHandle.values()) {
+    if (weekChild.kind === "file") {
+      const fileHandle = weekChild;
+      if (!fileHandle.name.startsWith(TIMEREPORT_FILENAME_PREFIX)) {
+        continue;
       }
-    }
-  };
 
-  await readDirectory(rootHandle);
+      const fileDateString = fileHandle.name.replace(
+        TIMEREPORT_FILENAME_PREFIX,
+        ""
+      );
+      const fileDate = parse(fileDateString, DATE_FORMAT, new Date());
+      const isoWeek = getISOWeek(fileDate);
+
+      if (isoWeek !== weekDirNumber) {
+        console.log(fileDateString, fileDate, isoWeek, weekDirNumber);
+        continue;
+      }
+      const file = await fileHandle.getFile();
+      const content = await file.text();
+
+      rawReports.push({
+        name: fileHandle.name.replace(TIMEREPORT_FILENAME_PREFIX, ""),
+        content,
+      });
+    }
+  }
+
+  return rawReports;
+}
+
+async function readYearDir(
+  yearDirHandle: FileSystemDirectoryHandle,
+  rawReports: Array<RawReport>
+) {
+  for await (const yearChild of yearDirHandle.values()) {
+    if (yearChild.kind === "directory") {
+      const dirNameMatch = yearChild.name.match(WEEK_DIR_NAME_REGEX);
+      if (!dirNameMatch) {
+        continue;
+      }
+
+      rawReports = await readWeekDir(yearChild, rawReports);
+    }
+  }
+  return rawReports;
+}
+
+export async function readReports(rootHandle: FileSystemDirectoryHandle) {
+  let rawReports: Array<RawReport> = [];
+
+  for await (const rootChild of rootHandle.values()) {
+    if (rootChild.kind === "directory") {
+      const dirNameMatch = rootChild.name.match(YEAR_DIR_NAME_REGEX);
+      if (!dirNameMatch) {
+        continue;
+      }
+
+      rawReports = await readYearDir(rootChild, rawReports);
+    }
+  }
 
   return rawReports.reduce((prev, curr) => {
     prev[curr.name] = parseReport(curr.content);
