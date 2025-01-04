@@ -8,7 +8,7 @@ import { Calendar } from "./ui/calendar";
 
 type DateControlsProps = {
   selectedDate: Date | undefined;
-  setSelectedDate: Dispatch<SetStateAction<Date | undefined>>;
+  setSelectedDate: Dispatch<SetStateAction<Date>>;
 };
 
 export default function DateControls({
@@ -53,7 +53,7 @@ export default function DateControls({
             mode="single"
             defaultMonth={selectedDate || new Date()}
             selected={selectedDate}
-            onSelect={(date) => setSelectedDate(date)}
+            onSelect={(date) => setSelectedDate(date || new Date())}
             disabled={(date) =>
               date > new Date() || date < new Date("1900-01-01")
             }

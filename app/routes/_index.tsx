@@ -7,14 +7,15 @@ import { AppHeader } from "~/components/app-header";
 import HoursCalendar from "~/components/hours-calendar";
 import {
   calculateDailyDurations,
+  DATE_FORMAT,
   readReports,
+  type ReportEntry,
   type Reports,
 } from "~/lib/reports";
 import TimeEntryForm from "~/components/entry-edit-form";
-import { Dialog, DialogContent } from "~/components/ui/dialog";
 import ReportEntryCard from "~/components/report-entry-card";
 import DateControls from "~/components/date-controls";
-import { useLoaderData } from "react-router";
+import { useLoaderData, type ClientActionFunctionArgs } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -33,13 +34,27 @@ export async function clientLoader() {
   };
 }
 
+export async function clientAction({ request }: ClientActionFunctionArgs) {
+  const body = await request.formData();
+  const entry: Partial<ReportEntry> = {
+    start: body.get("start")?.toString() || undefined,
+    end: body.get("end")?.toString() || undefined,
+    project: body.get("project")?.toString() || null,
+    activity: body.get("activity")?.toString() || null,
+    description: body.get("description")?.toString() || null,
+  };
+
+  const date = body.get("date")?.toString();
+
+  console.log(entry);
+}
+
 export default function Home() {
   const { reports: loaderReports } = useLoaderData<typeof clientLoader>();
 
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    new Date()
-  );
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [reports, setReports] = useState<Reports>(loaderReports || {});
+  const [entryIndexToEdit, setEntryIndexToEdit] = useState<number | null>(null);
 
   const handleOpenFolder = async () => {
     const rootHandle: FileSystemDirectoryHandle =
@@ -54,7 +69,7 @@ export default function Home() {
     if (!selectedDate) {
       return null;
     }
-    return reports[format(selectedDate, "yyyyMMdd")] || null;
+    return reports[format(selectedDate, DATE_FORMAT)] || null;
   }, [selectedDate, reports]);
 
   return (
@@ -84,8 +99,14 @@ export default function Home() {
         </div>
         <div className="col-span-4 flex flex-col gap-4">
           {selectedReport?.length ? (
-            selectedReport.map((reportEntry) => (
-              <ReportEntryCard {...reportEntry} />
+            selectedReport.map((reportEntry, i) => (
+              <ReportEntryCard
+                key={`${reportEntry.start}-${reportEntry.end}-${i}`}
+                entry={reportEntry}
+                onEditClick={() => {
+                  setEntryIndexToEdit(i);
+                }}
+              />
             ))
           ) : (
             <div className="rounded-lg border p-3 text-muted-foreground">
@@ -94,14 +115,12 @@ export default function Home() {
           )}
         </div>
       </div>
-      <Dialog>
-        <DialogContent>
-          <TimeEntryForm
-            reports={reports}
-            onSave={(d, i, e) => console.log(d, i, e)}
-          />
-        </DialogContent>
-      </Dialog>
+      <TimeEntryForm
+        report={selectedReport}
+        entryIndex={entryIndexToEdit}
+        selectedDate={selectedDate}
+        onClose={() => setEntryIndexToEdit(null)}
+      />
     </>
   );
 }

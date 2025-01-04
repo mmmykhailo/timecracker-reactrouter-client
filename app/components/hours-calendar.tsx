@@ -13,13 +13,17 @@ import { Button } from "./ui/button";
 import { cn } from "~/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "./ui/badge";
-import { formatDuration, type DailyDurations } from "~/lib/reports";
+import {
+  DATE_FORMAT,
+  formatDuration,
+  type DailyDurations,
+} from "~/lib/reports";
 
 type HoursCalendarProps = {
   isCompact?: boolean;
   dailyDurations: DailyDurations;
   selectedDate: Date | undefined;
-  setSelectedDate: (date: Date | undefined) => void;
+  setSelectedDate: (date: Date) => void;
 };
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -55,7 +59,7 @@ const HoursCalendar = ({
 
   const renderDayCell = (cellDate: Date) => {
     const formattedMonth = format(currentMonth, "yyyyMM");
-    const formattedDate = format(cellDate, "yyyyMMdd");
+    const formattedDate = format(cellDate, DATE_FORMAT);
     const duration = dailyDurations[formattedDate] || 0;
 
     const isToday = isSameDay(cellDate, new Date());
