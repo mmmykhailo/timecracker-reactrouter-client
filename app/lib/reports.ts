@@ -1,6 +1,6 @@
 export const TIMEREPORT_FILENAME_PREFIX = "timereport - ";
 
-export type TimeEntry = {
+export type ReportEntry = {
   start: string;
   end: string;
   duration: number; // duration in minutes
@@ -9,7 +9,7 @@ export type TimeEntry = {
   description: string | null;
 };
 
-export type Reports = Record<string, Array<TimeEntry>>;
+export type Reports = Record<string, Array<ReportEntry>>;
 
 export type DailyDurations = Record<string, number>;
 
@@ -45,9 +45,9 @@ export const calculateDailyDurations = (reports: Reports): DailyDurations => {
   }, {});
 };
 
-export function parseReport(input: string): TimeEntry[] {
+export function parseReport(input: string): ReportEntry[] {
   const lines = input.split("\n").filter((line) => line.trim());
-  const entries: TimeEntry[] = [];
+  const entries: ReportEntry[] = [];
 
   for (let i = 0; i < lines.length - 1; i++) {
     const currentLine = lines[i];
@@ -64,7 +64,7 @@ export function parseReport(input: string): TimeEntry[] {
     const parts = currentLine.split(" - ");
 
     // Initialize entry with default values
-    const entry: TimeEntry = {
+    const entry: ReportEntry = {
       start: startTime,
       end: endTime,
       duration: duration,
@@ -126,10 +126,10 @@ export async function readReports(rootHandle: FileSystemDirectoryHandle) {
     prev[curr.name] = parseReport(curr.content);
 
     return prev;
-  }, {} as Record<string, Array<TimeEntry>>);
+  }, {} as Record<string, Array<ReportEntry>>);
 }
 
-export function serializeReport(entries: TimeEntry[]): string {
+export function serializeReport(entries: ReportEntry[]): string {
   let output = "";
 
   for (const entryIndex of entries.keys()) {

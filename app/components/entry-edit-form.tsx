@@ -6,11 +6,11 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 import { Alert, AlertDescription } from "~/components/ui/alert";
-import type { Reports, TimeEntry } from "~/lib/reports";
+import type { Reports, ReportEntry } from "~/lib/reports";
 
 type TimeEntryFormProps = {
   reports: Reports;
-  onSave: (date: string, index: number, entry: TimeEntry) => void;
+  onSave: (date: string, index: number, entry: ReportEntry) => void;
 };
 
 const TimeEntryForm = ({ reports, onSave }: TimeEntryFormProps) => {
