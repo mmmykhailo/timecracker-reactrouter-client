@@ -235,11 +235,19 @@ async function readFileFromPath(
 export function serializeReport(entries: ReportEntry[]): string {
   let output = "";
 
-  for (const entryIndex of entries.keys()) {
-    const entry = entries[entryIndex];
+  const sortedEntries = entries
+    .filter((entry) => entry.description)
+    .sort(
+      (a, b) => parseTimeIntoMinutes(a.start) - parseTimeIntoMinutes(b.start),
+    );
+
+  for (const entryIndex of sortedEntries.keys()) {
+    const entry = sortedEntries[entryIndex];
     const nextEntryIndex = entryIndex + 1;
     const nextEntry =
-      nextEntryIndex < entries.length ? entries[nextEntryIndex] : null;
+      nextEntryIndex < sortedEntries.length
+        ? sortedEntries[nextEntryIndex]
+        : null;
 
     let line = entry.start;
 
