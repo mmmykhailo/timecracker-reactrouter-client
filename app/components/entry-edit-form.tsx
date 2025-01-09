@@ -55,6 +55,7 @@ const TimeEntryForm = ({
           </DialogDescription>
         </DialogHeader>
         <Form className="flex flex-col gap-6" action="/?index" method="POST">
+          <input type="hidden" name="intent" value="edit-entry" />
           {selectedDate && (
             <input
               type="hidden"

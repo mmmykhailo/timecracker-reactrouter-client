@@ -40,56 +40,108 @@ export async function clientLoader() {
 
 export async function clientAction({ request }: ClientActionFunctionArgs) {
   const body = await request.formData();
-  const entry: ReportEntry = {
-    start: body.get("start")?.toString() || "",
-    end: body.get("end")?.toString() || "",
-    duration: 0,
-    project: body.get("project")?.toString() || null,
-    activity: body.get("activity")?.toString() || null,
-    description: body.get("description")?.toString() || null,
-  };
+  const intent = body.get("intent")?.toString();
 
-  // todo: add validation for entry
+  // todo: refactor to avoid duplicating code
+  switch (intent) {
+    case "edit-entry": {
+      const entry: ReportEntry = {
+        start: body.get("start")?.toString() || "",
+        end: body.get("end")?.toString() || "",
+        duration: 0,
+        project: body.get("project")?.toString() || null,
+        activity: body.get("activity")?.toString() || null,
+        description: body.get("description")?.toString() || null,
+      };
 
-  const dateString = body.get("date")?.toString();
-  const entryIndexString = body.get("entryIndex")?.toString();
+      // todo: add validation for entry
 
-  const entryIndex = entryIndexString
-    ? Number.parseInt(entryIndexString, 10)
-    : null;
+      const dateString = body.get("date")?.toString();
+      const entryIndexString = body.get("entryIndex")?.toString();
 
-  const rootHandle: FileSystemDirectoryHandle | undefined =
-    await idbGet("rootHandle");
-  if (
-    !rootHandle ||
-    !dateString ||
-    entryIndex === null ||
-    Number.isNaN(entryIndex)
-  ) {
-    console.error(rootHandle, dateString, entryIndexString, entryIndex);
-    return;
+      const entryIndex = entryIndexString
+        ? Number.parseInt(entryIndexString, 10)
+        : null;
+
+      const rootHandle: FileSystemDirectoryHandle | undefined =
+        await idbGet("rootHandle");
+      if (
+        !rootHandle ||
+        !dateString ||
+        entryIndex === null ||
+        Number.isNaN(entryIndex)
+      ) {
+        console.error(rootHandle, dateString, entryIndexString, entryIndex);
+        return;
+      }
+
+      const report = await readReport(rootHandle, dateString);
+      if (!report) {
+        throw "Handle this";
+      }
+
+      report[entryIndex] = entry;
+
+      await writeReport(rootHandle, dateString, report);
+
+      const updatedReport = await readReport(rootHandle, dateString);
+
+      if (!updatedReport) {
+        return null;
+      }
+
+      return {
+        updatedReports: {
+          [dateString]: updatedReport,
+        },
+      };
+    }
+    case "delete-entry": {
+      const dateString = body.get("date")?.toString();
+
+      const entryIndexString = body.get("entryIndex")?.toString();
+      const entryIndex = entryIndexString
+        ? Number.parseInt(entryIndexString, 10)
+        : null;
+
+      if (!entryIndex) {
+        return;
+      }
+
+      const rootHandle: FileSystemDirectoryHandle | undefined =
+        await idbGet("rootHandle");
+      if (
+        !rootHandle ||
+        !dateString ||
+        entryIndex === null ||
+        Number.isNaN(entryIndex)
+      ) {
+        console.error(rootHandle, dateString, entryIndexString, entryIndex);
+        return;
+      }
+
+      const report = await readReport(rootHandle, dateString);
+      if (!report) {
+        throw "Handle this";
+      }
+
+      report.splice(entryIndex, 1);
+
+      await writeReport(rootHandle, dateString, report);
+
+      const updatedReport = await readReport(rootHandle, dateString);
+
+      if (!updatedReport) {
+        return null;
+      }
+
+      return {
+        updatedReports: {
+          [dateString]: updatedReport,
+        },
+      };
+    }
   }
-
-  const report = await readReport(rootHandle, dateString);
-  if (!report) {
-    throw "Handle this";
-  }
-
-  report[entryIndex] = entry;
-
-  await writeReport(rootHandle, dateString, report);
-
-  const updatedReport = await readReport(rootHandle, dateString);
-
-  if (!updatedReport) {
-    return null;
-  }
-
-  return {
-    updatedReports: {
-      [dateString]: updatedReport,
-    },
-  };
 }
 
 export default function Home() {
@@ -119,9 +171,6 @@ export default function Home() {
   };
 
   const selectedReport = useMemo(() => {
-    if (!selectedDate) {
-      return null;
-    }
     return reports[format(selectedDate, DATE_FORMAT)] || null;
   }, [selectedDate, reports]);
 
@@ -155,7 +204,9 @@ export default function Home() {
             selectedReport.map((reportEntry, i) => (
               <ReportEntryCard
                 key={`${reportEntry.start}-${reportEntry.end}-${i}`}
+                entryIndex={i}
                 entry={reportEntry}
+                selectedDate={selectedDate}
                 onEditClick={() => {
                   setEntryIndexToEdit(i);
                 }}

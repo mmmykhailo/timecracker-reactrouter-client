@@ -1,14 +1,20 @@
 import { formatDuration, type ReportEntry } from "~/lib/reports";
 import { Button } from "./ui/button";
 import { Edit, Trash } from "lucide-react";
+import { Form } from "react-router";
+import { format } from "date-fns";
 
 type ReportEntryCardProps = {
   entry: ReportEntry;
+  entryIndex: number;
+  selectedDate: Date;
   onEditClick: () => void;
 };
 
 export default function ReportEntryCard({
   entry: { project, activity, description, start, end, duration },
+  entryIndex,
+  selectedDate,
   onEditClick,
 }: ReportEntryCardProps) {
   return (
@@ -29,9 +35,25 @@ export default function ReportEntryCard({
           <Button variant="outline" size="icon" onClick={onEditClick}>
             <Edit size={12} />
           </Button>
-          <Button variant="outline" size="icon">
-            <Trash size={12} />
-          </Button>
+          <Form method="POST">
+            <input type="hidden" name="intent" value="delete-entry" />
+            <input
+              type="hidden"
+              name="entryIndex"
+              value={entryIndex.toString()}
+            />
+
+            {selectedDate && (
+              <input
+                type="hidden"
+                name="date"
+                value={format(selectedDate, "yyyyMMdd")}
+              />
+            )}
+            <Button type="submit" variant="outline" size="icon">
+              <Trash size={12} />
+            </Button>
+          </Form>
         </div>
       </div>
     </div>
