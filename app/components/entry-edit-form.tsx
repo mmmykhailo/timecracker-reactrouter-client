@@ -68,7 +68,7 @@ const TimeEntryForm = ({
           )}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="start">Start Time</Label>
+              <Label htmlFor="start">Start Time *</Label>
               <Input
                 id="start"
                 name="start"
@@ -76,13 +76,13 @@ const TimeEntryForm = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="end">End Time</Label>
+              <Label htmlFor="end">End Time *</Label>
               <Input id="end" name="end" defaultValue={entry?.end || ""} />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="project">Project</Label>
+            <Label htmlFor="project">Project *</Label>
             <Input
               id="project"
               name="project"
@@ -102,7 +102,7 @@ const TimeEntryForm = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Description *</Label>
             <Textarea
               id="description"
               name="description"
