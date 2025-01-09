@@ -20,8 +20,10 @@ import {
   redirect,
   useActionData,
   useLoaderData,
+  useNavigate,
   type ClientActionFunctionArgs,
 } from "react-router";
+import { RotateCw } from "lucide-react";
 
 export function meta() {
   return [
@@ -146,6 +148,7 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
 export default function Home() {
   const { reports: loaderReports } = useLoaderData<typeof clientLoader>();
   const actionData = useActionData<typeof clientAction>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (typeof actionData?.updatedReports === "object") {
@@ -179,8 +182,8 @@ export default function Home() {
       <div className="flex flex-col lg:grid lg:grid-cols-12 flex-1 gap-4 p-4 mt-8">
         <div className="flex flex-col gap-4 col-span-8">
           <div className="flex justify-between flex-wrap gap-2">
-            <Button variant="outline" onClick={handleOpenFolder}>
-              Open folder
+            <Button size="icon" variant="outline" onClick={() => navigate(0)}>
+              <RotateCw />
             </Button>
             <DateControls
               selectedDate={selectedDate}
