@@ -2,7 +2,6 @@ import { format } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import { get as idbGet, set as idbSet } from "idb-keyval";
 import { Button } from "~/components/ui/button";
-import type { Route } from "./+types/_index";
 import { AppHeader } from "~/components/app-header";
 import HoursCalendar from "~/components/hours-calendar";
 import {
@@ -10,7 +9,6 @@ import {
   DATE_FORMAT,
   readReport,
   readReports,
-  serializeReport,
   writeReport,
   type ReportEntry,
   type Reports,
@@ -24,7 +22,7 @@ import {
   type ClientActionFunctionArgs,
 } from "react-router";
 
-export function meta({}: Route.MetaArgs) {
+export function meta() {
   return [
     { title: "New React Router App" },
     { name: "description", content: "Welcome to React Router!" },
@@ -32,9 +30,8 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  const rootHandle: FileSystemDirectoryHandle | undefined = await idbGet(
-    "rootHandle"
-  );
+  const rootHandle: FileSystemDirectoryHandle | undefined =
+    await idbGet("rootHandle");
 
   return {
     reports: rootHandle ? await readReports(rootHandle) : null,
@@ -57,12 +54,18 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
   const dateString = body.get("date")?.toString();
   const entryIndexString = body.get("entryIndex")?.toString();
 
-  const entryIndex = entryIndexString ? parseInt(entryIndexString, 10) : null;
+  const entryIndex = entryIndexString
+    ? Number.parseInt(entryIndexString, 10)
+    : null;
 
-  const rootHandle: FileSystemDirectoryHandle | undefined = await idbGet(
-    "rootHandle"
-  );
-  if (!rootHandle || !dateString || entryIndex === null || isNaN(entryIndex)) {
+  const rootHandle: FileSystemDirectoryHandle | undefined =
+    await idbGet("rootHandle");
+  if (
+    !rootHandle ||
+    !dateString ||
+    entryIndex === null ||
+    Number.isNaN(entryIndex)
+  ) {
     console.error(rootHandle, dateString, entryIndexString, entryIndex);
     return;
   }

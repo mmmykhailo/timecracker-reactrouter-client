@@ -36,7 +36,7 @@ export default function DateControls({
             variant="outline"
             className={cn(
               "w-[240px] pl-3 text-left font-normal",
-              !selectedDate && "text-muted-foreground"
+              !selectedDate && "text-muted-foreground",
             )}
           >
             {selectedDate ? (

@@ -44,15 +44,20 @@ export function formatDuration(minutes: number): string {
 }
 
 export const calculateDailyDurations = (reports: Reports): DailyDurations => {
-  return Object.entries(reports).reduce((acc, [date, dayEntries]) => {
-    // Sum up all durations for the day
-    const duration = dayEntries.reduce((sum, entry) => sum + entry.duration, 0);
+  return Object.entries(reports).reduce(
+    (acc, [date, dayEntries]) => {
+      // Sum up all durations for the day
+      const duration = dayEntries.reduce(
+        (sum, entry) => sum + entry.duration,
+        0,
+      );
 
-    return {
-      ...acc,
-      [date]: duration,
-    };
-  }, {});
+      acc[date] = duration;
+
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 };
 
 export function parseReport(input: string): ReportEntry[] {
@@ -104,9 +109,9 @@ export function parseReport(input: string): ReportEntry[] {
 
 async function readWeekDir(
   weekDirHandle: FileSystemDirectoryHandle,
-  rawReports: Array<RawReport>
+  rawReports: Array<RawReport>,
 ) {
-  const weekDirNumber = parseInt(weekDirHandle.name.split(" ")[1], 10);
+  const weekDirNumber = Number.parseInt(weekDirHandle.name.split(" ")[1], 10);
   for await (const weekChild of weekDirHandle.values()) {
     if (weekChild.kind === "file") {
       const fileHandle = weekChild;
@@ -116,7 +121,7 @@ async function readWeekDir(
 
       const fileDateString = fileHandle.name.replace(
         TIMEREPORT_FILENAME_PREFIX,
-        ""
+        "",
       );
       const fileDate = parse(fileDateString, DATE_FORMAT, new Date());
       const isoWeek = getISOWeek(fileDate);
@@ -140,8 +145,10 @@ async function readWeekDir(
 
 async function readYearDir(
   yearDirHandle: FileSystemDirectoryHandle,
-  rawReports: Array<RawReport>
+  rawReports: Array<RawReport>,
 ) {
+  let supplementedRawReports = rawReports;
+
   for await (const yearChild of yearDirHandle.values()) {
     if (yearChild.kind === "directory") {
       const dirNameMatch = yearChild.name.match(WEEK_DIR_NAME_REGEX);
@@ -149,10 +156,13 @@ async function readYearDir(
         continue;
       }
 
-      rawReports = await readWeekDir(yearChild, rawReports);
+      supplementedRawReports = await readWeekDir(
+        yearChild,
+        supplementedRawReports,
+      );
     }
   }
-  return rawReports;
+  return supplementedRawReports;
 }
 
 export async function readReports(rootHandle: FileSystemDirectoryHandle) {
@@ -169,16 +179,19 @@ export async function readReports(rootHandle: FileSystemDirectoryHandle) {
     }
   }
 
-  return rawReports.reduce((prev, curr) => {
-    prev[curr.name] = parseReport(curr.content);
+  return rawReports.reduce(
+    (prev, curr) => {
+      prev[curr.name] = parseReport(curr.content);
 
-    return prev;
-  }, {} as Record<string, Array<ReportEntry>>);
+      return prev;
+    },
+    {} as Record<string, Array<ReportEntry>>,
+  );
 }
 
 export async function readReport(
   rootHandle: FileSystemDirectoryHandle,
-  fileDateString: string
+  fileDateString: string,
 ) {
   const fileDate = parse(fileDateString, DATE_FORMAT, new Date());
   const isoWeek = getISOWeek(fileDate);
@@ -199,7 +212,7 @@ export async function readReport(
 
 async function readFileFromPath(
   rootHandle: FileSystemDirectoryHandle,
-  pathSegments: string[]
+  pathSegments: string[],
 ) {
   try {
     let currentHandle: FileSystemDirectoryHandle = rootHandle;
@@ -240,7 +253,7 @@ export function serializeReport(entries: ReportEntry[]): string {
       }
     }
 
-    output += line + "\n";
+    output += `${line}\n`;
 
     if (!nextEntry || entry.end !== nextEntry.start) {
       output += `${entry.end} - \n`;
@@ -253,7 +266,7 @@ export function serializeReport(entries: ReportEntry[]): string {
 export async function writeReport(
   rootHandle: FileSystemDirectoryHandle,
   fileDateString: string,
-  entries: ReportEntry[]
+  entries: ReportEntry[],
 ) {
   const fileDate = parse(fileDateString, DATE_FORMAT, new Date());
   const isoWeek = getISOWeek(fileDate);
@@ -268,14 +281,14 @@ export async function writeReport(
       `week ${isoWeek.toString().padStart(2, "0")}`,
       `${TIMEREPORT_FILENAME_PREFIX}${fileDateString}`,
     ],
-    rawReport
+    rawReport,
   );
 }
 
 async function writeFileToPath(
   rootHandle: FileSystemDirectoryHandle,
   pathSegments: string[],
-  rawReport: string
+  rawReport: string,
 ) {
   try {
     let currentHandle: FileSystemDirectoryHandle = rootHandle;

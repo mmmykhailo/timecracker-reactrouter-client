@@ -35,7 +35,7 @@ const TimeEntryForm = ({
     if (navigation.state === "submitting") {
       onClose();
     }
-  }, [navigation.state]);
+  }, [navigation.state, onClose]);
 
   return (
     <Dialog open={!!entry} onOpenChange={(open) => !open && onClose()}>

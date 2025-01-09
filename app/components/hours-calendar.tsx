@@ -30,7 +30,7 @@ const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function calculateMonthlyTotal(
   data: Record<string, number>,
-  targetMonth: Date
+  targetMonth: Date,
 ): number {
   return Object.entries(data)
     .filter(([date]) => isSameMonth(parseISO(date), targetMonth)) // Check if the dates are in the same month
@@ -83,7 +83,7 @@ const HoursCalendar = ({
             "text-primary-foreground hover:bg-primary/80": isSelected,
             "bg-primary/30": isSelected && !isSelectedMonth,
             "bg-primary": isSelected && isSelectedMonth,
-          }
+          },
         )}
       >
         <div className="text-sm font-bold">{format(cellDate, "d")}</div>
@@ -114,7 +114,7 @@ const HoursCalendar = ({
         key={startDate.toISOString()}
         className={cn(
           "grid grid-cols-7",
-          "[&:last-child>*:first-child]:rounded-bl [&:last-child>*:last-child]:rounded-br"
+          "[&:last-child>*:first-child]:rounded-bl [&:last-child>*:last-child]:rounded-br",
         )}
       >
         {weekDays.map((day) => renderDayCell(day))}
@@ -144,7 +144,7 @@ const HoursCalendar = ({
 
   const monthlyTotalDuration = useMemo(
     () => calculateMonthlyTotal(dailyDurations, currentMonth),
-    [dailyDurations, currentMonth]
+    [dailyDurations, currentMonth],
   );
 
   return (
