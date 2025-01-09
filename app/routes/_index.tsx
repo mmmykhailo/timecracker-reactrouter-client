@@ -80,10 +80,8 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
         return;
       }
 
-      const report = await readReport(rootHandle, dateString);
-      if (!report) {
-        throw "Handle this";
-      }
+      const report: Array<ReportEntry> =
+        (await readReport(rootHandle, dateString)) || [];
 
       report[entryIndex] = entry;
 
