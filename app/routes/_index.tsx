@@ -107,7 +107,7 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
         ? Number.parseInt(entryIndexString, 10)
         : null;
 
-      if (!entryIndex) {
+      if (entryIndex === null || Number.isNaN(entryIndex)) {
         return;
       }
 
@@ -134,13 +134,9 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
 
       const updatedReport = await readReport(rootHandle, dateString);
 
-      if (!updatedReport) {
-        return null;
-      }
-
       return {
         updatedReports: {
-          [dateString]: updatedReport,
+          [dateString]: updatedReport || [],
         },
       };
     }
@@ -152,7 +148,7 @@ export default function Home() {
   const actionData = useActionData<typeof clientAction>();
 
   useEffect(() => {
-    if (actionData?.updatedReports) {
+    if (typeof actionData?.updatedReports === "object") {
       setReports((oldReports) => ({
         ...oldReports,
         ...actionData.updatedReports,
