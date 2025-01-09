@@ -11,8 +11,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import { Form } from "react-router";
+import { Form, useNavigation } from "react-router";
 import { format } from "date-fns";
+import { useEffect } from "react";
 
 type TimeEntryFormProps = {
   report: Array<ReportEntry> | null;
@@ -27,7 +28,14 @@ const TimeEntryForm = ({
   selectedDate,
   onClose,
 }: TimeEntryFormProps) => {
+  const navigation = useNavigation();
   const entry = (entryIndex !== null && report?.[entryIndex]) || null;
+
+  useEffect(() => {
+    if (navigation.state === "submitting") {
+      onClose();
+    }
+  }, [navigation.state]);
 
   return (
     <Dialog open={!!entry} onOpenChange={(open) => !open && onClose()}>
@@ -38,13 +46,16 @@ const TimeEntryForm = ({
             Write down stuff you want to track
           </DialogDescription>
         </DialogHeader>
-        <Form className="space-y-6" action="/?index" method="POST">
+        <Form className="flex flex-col gap-6" action="/?index" method="POST">
           {selectedDate && (
             <input
               type="hidden"
               name="date"
               value={format(selectedDate, "yyyyMMdd")}
             />
+          )}
+          {entryIndex !== null && (
+            <input type="hidden" name="entryIndex" value={entryIndex} />
           )}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

@@ -176,6 +176,49 @@ export async function readReports(rootHandle: FileSystemDirectoryHandle) {
   }, {} as Record<string, Array<ReportEntry>>);
 }
 
+export async function readReport(
+  rootHandle: FileSystemDirectoryHandle,
+  fileDateString: string
+) {
+  const fileDate = parse(fileDateString, DATE_FORMAT, new Date());
+  const isoWeek = getISOWeek(fileDate);
+  const year = fileDate.getFullYear();
+
+  const rawReport = await readFileFromPath(rootHandle, [
+    year.toString(),
+    `week ${isoWeek.toString().padStart(2, "0")}`,
+    `${TIMEREPORT_FILENAME_PREFIX}${fileDateString}`,
+  ]);
+
+  if (!rawReport) {
+    return null;
+  }
+
+  return parseReport(rawReport);
+}
+
+async function readFileFromPath(
+  rootHandle: FileSystemDirectoryHandle,
+  pathSegments: string[]
+) {
+  try {
+    let currentHandle: FileSystemDirectoryHandle = rootHandle;
+
+    // Traverse through directories
+    for (const segment of pathSegments.slice(0, -1)) {
+      currentHandle = await currentHandle.getDirectoryHandle(segment);
+    }
+
+    // Get the file handle
+    const fileName = pathSegments[pathSegments.length - 1];
+    const fileHandle = await currentHandle.getFileHandle(fileName);
+    const file = await fileHandle.getFile();
+    return await file.text();
+  } catch (error) {
+    return null;
+  }
+}
+
 export function serializeReport(entries: ReportEntry[]): string {
   let output = "";
 
@@ -205,4 +248,55 @@ export function serializeReport(entries: ReportEntry[]): string {
   }
 
   return output;
+}
+
+export async function writeReport(
+  rootHandle: FileSystemDirectoryHandle,
+  fileDateString: string,
+  entries: ReportEntry[]
+) {
+  const fileDate = parse(fileDateString, DATE_FORMAT, new Date());
+  const isoWeek = getISOWeek(fileDate);
+  const year = fileDate.getFullYear();
+
+  const rawReport = serializeReport(entries);
+
+  await writeFileToPath(
+    rootHandle,
+    [
+      year.toString(),
+      `week ${isoWeek.toString().padStart(2, "0")}`,
+      `${TIMEREPORT_FILENAME_PREFIX}${fileDateString}`,
+    ],
+    rawReport
+  );
+}
+
+async function writeFileToPath(
+  rootHandle: FileSystemDirectoryHandle,
+  pathSegments: string[],
+  rawReport: string
+) {
+  try {
+    let currentHandle: FileSystemDirectoryHandle = rootHandle;
+
+    // Traverse through directories
+    for (const segment of pathSegments.slice(0, -1)) {
+      currentHandle = await currentHandle.getDirectoryHandle(segment, {
+        create: true,
+      });
+    }
+
+    // Get the file handle
+    const fileName = pathSegments[pathSegments.length - 1];
+    const fileHandle = await currentHandle.getFileHandle(fileName, {
+      create: true,
+    });
+
+    const writable = await fileHandle.createWritable();
+    await writable.write(rawReport);
+    await writable.close();
+  } catch (error) {
+    return null;
+  }
 }

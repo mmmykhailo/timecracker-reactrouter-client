@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { get as idbGet, set as idbSet } from "idb-keyval";
 import { Button } from "~/components/ui/button";
 import type { Route } from "./+types/_index";
@@ -8,14 +8,21 @@ import HoursCalendar from "~/components/hours-calendar";
 import {
   calculateDailyDurations,
   DATE_FORMAT,
+  readReport,
   readReports,
+  serializeReport,
+  writeReport,
   type ReportEntry,
   type Reports,
 } from "~/lib/reports";
 import TimeEntryForm from "~/components/entry-edit-form";
 import ReportEntryCard from "~/components/report-entry-card";
 import DateControls from "~/components/date-controls";
-import { useLoaderData, type ClientActionFunctionArgs } from "react-router";
+import {
+  useActionData,
+  useLoaderData,
+  type ClientActionFunctionArgs,
+} from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -36,21 +43,64 @@ export async function clientLoader() {
 
 export async function clientAction({ request }: ClientActionFunctionArgs) {
   const body = await request.formData();
-  const entry: Partial<ReportEntry> = {
-    start: body.get("start")?.toString() || undefined,
-    end: body.get("end")?.toString() || undefined,
+  const entry: ReportEntry = {
+    start: body.get("start")?.toString() || "",
+    end: body.get("end")?.toString() || "",
+    duration: 0,
     project: body.get("project")?.toString() || null,
     activity: body.get("activity")?.toString() || null,
     description: body.get("description")?.toString() || null,
   };
 
-  const date = body.get("date")?.toString();
+  // todo: add validation for entry
 
-  console.log(entry);
+  const dateString = body.get("date")?.toString();
+  const entryIndexString = body.get("entryIndex")?.toString();
+
+  const entryIndex = entryIndexString ? parseInt(entryIndexString, 10) : null;
+
+  const rootHandle: FileSystemDirectoryHandle | undefined = await idbGet(
+    "rootHandle"
+  );
+  if (!rootHandle || !dateString || entryIndex === null || isNaN(entryIndex)) {
+    console.error(rootHandle, dateString, entryIndexString, entryIndex);
+    return;
+  }
+
+  const report = await readReport(rootHandle, dateString);
+  if (!report) {
+    throw "Handle this";
+  }
+
+  report[entryIndex] = entry;
+
+  await writeReport(rootHandle, dateString, report);
+
+  const updatedReport = await readReport(rootHandle, dateString);
+
+  if (!updatedReport) {
+    return null;
+  }
+
+  return {
+    updatedReports: {
+      [dateString]: updatedReport,
+    },
+  };
 }
 
 export default function Home() {
   const { reports: loaderReports } = useLoaderData<typeof clientLoader>();
+  const actionData = useActionData<typeof clientAction>();
+
+  useEffect(() => {
+    if (actionData?.updatedReports) {
+      setReports((oldReports) => ({
+        ...oldReports,
+        ...actionData.updatedReports,
+      }));
+    }
+  }, [actionData?.updatedReports]);
 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [reports, setReports] = useState<Reports>(loaderReports || {});
