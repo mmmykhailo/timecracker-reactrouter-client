@@ -38,10 +38,18 @@ const TimeEntryForm = ({
   }, [navigation.state, onClose]);
 
   return (
-    <Dialog open={!!entry} onOpenChange={(open) => !open && onClose()}>
+    <Dialog
+      open={entryIndex !== null}
+      onOpenChange={(open) => !open && onClose()}
+    >
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit report entry</DialogTitle>
+          {entry ? (
+            <DialogTitle>Edit report entry</DialogTitle>
+          ) : (
+            <DialogTitle>Add report entry</DialogTitle>
+          )}
+
           <DialogDescription>
             Write down stuff you want to track
           </DialogDescription>

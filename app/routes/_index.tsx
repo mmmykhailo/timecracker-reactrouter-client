@@ -166,6 +166,11 @@ export default function Home() {
               No entries yet
             </div>
           )}
+          <Button
+            onClick={() => setEntryIndexToEdit(selectedReport?.length || 0)}
+          >
+            Add new entry
+          </Button>
         </div>
       </div>
       <TimeEntryForm
