@@ -17,6 +17,7 @@ import TimeEntryForm from "~/components/entry-edit-form";
 import ReportEntryCard from "~/components/report-entry-card";
 import DateControls from "~/components/date-controls";
 import {
+  redirect,
   useActionData,
   useLoaderData,
   type ClientActionFunctionArgs,
@@ -33,8 +34,12 @@ export async function clientLoader() {
   const rootHandle: FileSystemDirectoryHandle | undefined =
     await idbGet("rootHandle");
 
+  if (!rootHandle) {
+    return redirect("/welcome");
+  }
+
   return {
-    reports: rootHandle ? await readReports(rootHandle) : null,
+    reports: await readReports(rootHandle),
   };
 }
 
