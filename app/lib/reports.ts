@@ -126,7 +126,9 @@ export function parseReport(input: string): {
     entries.push(entry);
   }
 
-  return { entries };
+  return {
+    entries: entries.filter((entry) => entry.project && entry.description),
+  };
 }
 
 async function readWeekDir(
