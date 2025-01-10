@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router";
-import { Button } from "~/components/ui/button";
-
 import { set as idbSet } from "idb-keyval";
+import { Button } from "~/components/ui/button";
 
 export function meta() {
   return [
@@ -12,6 +11,21 @@ export function meta() {
 
 export default function WelcomePage() {
   const navigate = useNavigate();
+
+  const isFilesystemApiSupported = "showDirectoryPicker" in window;
+
+  // top level window means not in iframe
+  const checkIfInTopLevelWindow = () => {
+    try {
+      return window.self === window.top;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  if (!isFilesystemApiSupported && checkIfInTopLevelWindow()) {
+    return navigate("/not-supported");
+  }
 
   const handleOpenFolder = async () => {
     const rootHandle: FileSystemDirectoryHandle =

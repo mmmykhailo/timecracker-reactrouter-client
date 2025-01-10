@@ -201,7 +201,7 @@ export default function Home() {
   }, [selectedDate, reports]);
 
   return (
-    <>
+    <div className="min-w-[640px]">
       <AppHeader />
       <div className="flex flex-col lg:grid lg:grid-cols-12 flex-1 gap-4 p-4 mt-8">
         <div className="flex flex-col gap-4 col-span-8">
@@ -325,6 +325,6 @@ export default function Home() {
         selectedDate={selectedDate}
         onClose={() => setEntryIndexToEdit(null)}
       />
-    </>
+    </div>
   );
 }
