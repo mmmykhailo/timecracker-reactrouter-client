@@ -13,7 +13,7 @@ import {
   type ReportEntry,
   type Reports,
 } from "~/lib/reports";
-import TimeEntryForm from "~/components/entry-edit-form";
+import EntryForm from "~/components/entry-form";
 import ReportEntryCard from "~/components/report-entry-card";
 import DateControls from "~/components/date-controls";
 import {
@@ -24,6 +24,8 @@ import {
   type ClientActionFunctionArgs,
 } from "react-router";
 import { RotateCw } from "lucide-react";
+import { safeParse } from "valibot";
+import { EntryFormSchema } from "~/lib/schema";
 
 export function meta() {
   return [
@@ -52,33 +54,40 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
   // todo: refactor to avoid duplicating code
   switch (intent) {
     case "edit-entry": {
-      const entry: ReportEntry = {
-        start: body.get("start")?.toString() || "",
-        end: body.get("end")?.toString() || "",
-        duration: 0,
-        project: body.get("project")?.toString() || null,
-        activity: body.get("activity")?.toString() || null,
-        description: body.get("description")?.toString() || null,
+      const entryFormData = {
+        start: body.get("start")?.toString(),
+        end: body.get("end")?.toString(),
+        project: body.get("project")?.toString(),
+        activity: body.get("activity")?.toString(),
+        description: body.get("description")?.toString(),
+        date: body.get("date")?.toString(),
+        entryIndex: body.get("entryIndex")?.toString(),
       };
 
-      // todo: add validation for entry
+      const parsedEntryFormData = safeParse(EntryFormSchema, entryFormData);
 
-      const dateString = body.get("date")?.toString();
-      const entryIndexString = body.get("entryIndex")?.toString();
+      if (!parsedEntryFormData.success) {
+        return {
+          entryFormIssues: parsedEntryFormData.issues,
+        };
+      }
 
-      const entryIndex = entryIndexString
-        ? Number.parseInt(entryIndexString, 10)
-        : null;
+      const dateString = parsedEntryFormData.output.date;
+      const entryIndex = parsedEntryFormData.output.entryIndex;
+
+      const entry: ReportEntry = {
+        start: parsedEntryFormData.output.start,
+        end: parsedEntryFormData.output.end,
+        duration: 0,
+        project: parsedEntryFormData.output.project,
+        activity: parsedEntryFormData.output.activity || null,
+        description: parsedEntryFormData.output.description,
+      };
 
       const rootHandle: FileSystemDirectoryHandle | undefined =
         await idbGet("rootHandle");
-      if (
-        !rootHandle ||
-        !dateString ||
-        entryIndex === null ||
-        Number.isNaN(entryIndex)
-      ) {
-        console.error(rootHandle, dateString, entryIndexString, entryIndex);
+      if (!rootHandle || entryIndex === null || Number.isNaN(entryIndex)) {
+        console.error(rootHandle, entryIndex);
         return;
       }
 
@@ -163,15 +172,6 @@ export default function Home() {
   const [reports, setReports] = useState<Reports>(loaderReports || {});
   const [entryIndexToEdit, setEntryIndexToEdit] = useState<number | null>(null);
 
-  const handleOpenFolder = async () => {
-    const rootHandle: FileSystemDirectoryHandle =
-      (await idbGet("rootHandle")) || (await window.showDirectoryPicker());
-
-    await idbSet("rootHandle", rootHandle);
-
-    setReports(await readReports(rootHandle));
-  };
-
   const selectedReport = useMemo(() => {
     return reports[format(selectedDate, DATE_FORMAT)] || null;
   }, [selectedDate, reports]);
@@ -226,8 +226,9 @@ export default function Home() {
           </Button>
         </div>
       </div>
-      <TimeEntryForm
+      <EntryForm
         report={selectedReport}
+        issues={actionData?.entryFormIssues}
         entryIndex={entryIndexToEdit}
         selectedDate={selectedDate}
         onClose={() => setEntryIndexToEdit(null)}

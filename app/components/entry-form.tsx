@@ -14,20 +14,25 @@ import {
 import { Form, useNavigation } from "react-router";
 import { format } from "date-fns";
 import { useEffect } from "react";
+import { findIssueByPath, type EntryFormIssue } from "~/lib/schema";
+import { cn } from "~/lib/utils";
+import { getDotPath } from "valibot";
 
-type TimeEntryFormProps = {
+type EntryFormProps = {
   report: Array<ReportEntry> | null;
   entryIndex: number | null;
   selectedDate: Date;
+  issues?: Array<EntryFormIssue>;
   onClose: () => void;
 };
 
-const TimeEntryForm = ({
+const EntryForm = ({
   report,
   entryIndex,
   selectedDate,
+  issues,
   onClose,
-}: TimeEntryFormProps) => {
+}: EntryFormProps) => {
   const navigation = useNavigation();
   const entry = (entryIndex !== null && report?.[entryIndex]) || null;
 
@@ -72,12 +77,24 @@ const TimeEntryForm = ({
               <Input
                 id="start"
                 name="start"
+                className={cn({
+                  "border-destructive": !!findIssueByPath(issues, "start"),
+                })}
                 defaultValue={entry?.start || ""}
+                placeholder="10:00"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="end">End Time *</Label>
-              <Input id="end" name="end" defaultValue={entry?.end || ""} />
+              <Input
+                id="end"
+                name="end"
+                className={cn({
+                  "border-destructive": !!findIssueByPath(issues, "end"),
+                })}
+                defaultValue={entry?.end || ""}
+                placeholder="10:15"
+              />
             </div>
           </div>
 
@@ -86,6 +103,9 @@ const TimeEntryForm = ({
             <Input
               id="project"
               name="project"
+              className={cn({
+                "border-destructive": !!findIssueByPath(issues, "project"),
+              })}
               defaultValue={entry?.project || ""}
               placeholder="Project name"
             />
@@ -96,6 +116,9 @@ const TimeEntryForm = ({
             <Input
               id="activity"
               name="activity"
+              className={cn({
+                "border-destructive": !!findIssueByPath(issues, "activity"),
+              })}
               defaultValue={entry?.activity || ""}
               placeholder="Activity"
             />
@@ -106,9 +129,11 @@ const TimeEntryForm = ({
             <Textarea
               id="description"
               name="description"
+              className={cn("h-24", {
+                "border-destructive": !!findIssueByPath(issues, "description"),
+              })}
               defaultValue={entry?.description || ""}
               placeholder="Description"
-              className="h-24"
             />
           </div>
 
@@ -121,4 +146,4 @@ const TimeEntryForm = ({
   );
 };
 
-export default TimeEntryForm;
+export default EntryForm;
