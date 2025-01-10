@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
-import { get as idbGet, set as idbSet } from "idb-keyval";
+import { get as idbGet, del as idbDel } from "idb-keyval";
 import { Button } from "~/components/ui/button";
 import { AppHeader } from "~/components/app-header";
 import HoursCalendar from "~/components/hours-calendar";
@@ -160,6 +160,10 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
           [dateString]: updatedReport || { entries: [] },
         },
       };
+    }
+    case "close-directory": {
+      await idbDel("rootHandle");
+      return redirect("/welcome");
     }
   }
 }
