@@ -2,7 +2,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
-import type { ReportEntry } from "~/lib/reports";
+import type { Report } from "~/lib/reports";
 import {
   Dialog,
   DialogContent,
@@ -16,10 +16,9 @@ import { format } from "date-fns";
 import { useEffect } from "react";
 import { findIssueByPath, type EntryFormIssue } from "~/lib/schema";
 import { cn } from "~/lib/utils";
-import { getDotPath } from "valibot";
 
 type EntryFormProps = {
-  report: Array<ReportEntry> | null;
+  report: Report | null;
   entryIndex: number | null;
   selectedDate: Date;
   issues?: Array<EntryFormIssue>;
@@ -34,7 +33,7 @@ const EntryForm = ({
   onClose,
 }: EntryFormProps) => {
   const navigation = useNavigation();
-  const entry = (entryIndex !== null && report?.[entryIndex]) || null;
+  const entry = (entryIndex !== null && report?.entries?.[entryIndex]) || null;
 
   useEffect(() => {
     if (navigation.state === "submitting") {

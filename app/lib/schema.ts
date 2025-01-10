@@ -12,25 +12,28 @@ import {
   type BaseIssue,
 } from "valibot";
 
-const timePattern = /^([01]\d|2[0-3]):([0-5]\d)$/;
-const datePattern = /^\d{4}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$/;
+export const TimeSchema = pipe(
+  string(),
+  regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (expected HH:mm)"),
+);
+
+export type TimeIssue = InferIssue<typeof TimeSchema>;
+
+export const DateSchema = pipe(
+  string(),
+  regex(
+    /^\d{4}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$/,
+    "Invalid date format (expected yyyyMMdd)",
+  ),
+);
 
 export const EntryFormSchema = object({
-  start: pipe(
-    string(),
-    regex(timePattern, "Invalid time format (expected HH:mm)"),
-  ),
-  end: pipe(
-    string(),
-    regex(timePattern, "Invalid time format (expected HH:mm)"),
-  ),
+  start: TimeSchema,
+  end: TimeSchema,
   project: pipe(string(), minLength(1)),
   activity: optional(string()),
   description: pipe(string(), minLength(1)),
-  date: pipe(
-    string(),
-    regex(datePattern, "Invalid date format (expected yyyyMMdd)"),
-  ),
+  date: DateSchema,
   entryIndex: pipe(
     string(),
     regex(/^\d+$/, "Entry index must be a string with a number"),

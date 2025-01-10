@@ -1,4 +1,12 @@
 import { getISOWeek, parse } from "date-fns";
+import {
+  safeParse,
+  type BaseIssue,
+  type GenericIssue,
+  type RegexIssue,
+  type StringIssue,
+} from "valibot";
+import { TimeSchema, type TimeIssue } from "./schema";
 
 export const TIMEREPORT_FILENAME_PREFIX = "timereport - ";
 export const WEEK_DIR_NAME_REGEX = /^week (\d{2})$/i;
@@ -19,7 +27,12 @@ export type ReportEntry = {
   description: string | null;
 };
 
-export type Reports = Record<string, Array<ReportEntry>>;
+export type Report = {
+  entries?: Array<ReportEntry>;
+  issues?: Array<TimeIssue>;
+};
+
+export type Reports = Record<string, Report>;
 
 export type DailyDurations = Record<string, number>;
 
@@ -45,12 +58,10 @@ export function formatDuration(minutes: number): string {
 
 export const calculateDailyDurations = (reports: Reports): DailyDurations => {
   return Object.entries(reports).reduce(
-    (acc, [date, dayEntries]) => {
+    (acc, [date, dayReport]) => {
       // Sum up all durations for the day
-      const duration = dayEntries.reduce(
-        (sum, entry) => sum + entry.duration,
-        0,
-      );
+      const duration =
+        dayReport.entries?.reduce((sum, entry) => sum + entry.duration, 0) || 0;
 
       acc[date] = duration;
 
@@ -60,7 +71,10 @@ export const calculateDailyDurations = (reports: Reports): DailyDurations => {
   );
 };
 
-export function parseReport(input: string): ReportEntry[] {
+export function parseReport(input: string): {
+  issues?: Array<StringIssue | RegexIssue<string>>;
+  entries?: ReportEntry[];
+} {
   const lines = input.split("\n").filter((line) => line.trim());
   const entries: ReportEntry[] = [];
 
@@ -72,6 +86,14 @@ export function parseReport(input: string): ReportEntry[] {
     const startTime = currentLine.split(" - ")[0].trim();
     // Extract end time from next line
     const endTime = nextLine.split(" - ")[0].trim();
+
+    const parsedStartTime = safeParse(TimeSchema, startTime);
+    const parsedEndTime = safeParse(TimeSchema, endTime);
+    if (!parsedStartTime.success || !parsedEndTime.success) {
+      return {
+        issues: parsedStartTime.issues || parsedEndTime.issues || [],
+      };
+    }
 
     const duration = calculateDuration(startTime, endTime);
 
@@ -104,7 +126,7 @@ export function parseReport(input: string): ReportEntry[] {
     entries.push(entry);
   }
 
-  return entries;
+  return { entries };
 }
 
 async function readWeekDir(
@@ -179,14 +201,13 @@ export async function readReports(rootHandle: FileSystemDirectoryHandle) {
     }
   }
 
-  return rawReports.reduce(
-    (prev, curr) => {
-      prev[curr.name] = parseReport(curr.content);
+  return rawReports.reduce((prev, curr) => {
+    const report = parseReport(curr.content);
 
-      return prev;
-    },
-    {} as Record<string, Array<ReportEntry>>,
-  );
+    prev[curr.name] = report;
+
+    return prev;
+  }, {} as Reports);
 }
 
 export async function readReport(

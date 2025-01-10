@@ -10,6 +10,7 @@ import {
   readReport,
   readReports,
   writeReport,
+  type Report,
   type ReportEntry,
   type Reports,
 } from "~/lib/reports";
@@ -24,8 +25,9 @@ import {
   type ClientActionFunctionArgs,
 } from "react-router";
 import { RotateCw } from "lucide-react";
-import { safeParse } from "valibot";
+import { getDotPath, safeParse } from "valibot";
 import { EntryFormSchema } from "~/lib/schema";
+import { Badge } from "~/components/ui/badge";
 
 export function meta() {
   return [
@@ -91,12 +93,17 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
         return;
       }
 
-      const report: Array<ReportEntry> =
-        (await readReport(rootHandle, dateString)) || [];
+      const report = await readReport(rootHandle, dateString);
 
-      report[entryIndex] = entry;
+      const entries = report?.entries;
 
-      await writeReport(rootHandle, dateString, report);
+      if (!entries) {
+        return null;
+      }
+
+      entries[entryIndex] = entry;
+
+      await writeReport(rootHandle, dateString, entries);
 
       const updatedReport = await readReport(rootHandle, dateString);
 
@@ -106,7 +113,7 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
 
       return {
         updatedReports: {
-          [dateString]: updatedReport,
+          [dateString]: updatedReport || { entries: [] },
         },
       };
     }
@@ -135,19 +142,22 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
       }
 
       const report = await readReport(rootHandle, dateString);
-      if (!report) {
+      if (!report?.entries) {
+        console.error("Could not parse report");
         throw "Handle this";
       }
 
-      report.splice(entryIndex, 1);
+      const entries = report.entries;
 
-      await writeReport(rootHandle, dateString, report);
+      entries.splice(entryIndex, 1);
+
+      await writeReport(rootHandle, dateString, entries);
 
       const updatedReport = await readReport(rootHandle, dateString);
 
       return {
         updatedReports: {
-          [dateString]: updatedReport || [],
+          [dateString]: updatedReport || { entries: [] },
         },
       };
     }
@@ -159,6 +169,10 @@ export default function Home() {
   const actionData = useActionData<typeof clientAction>();
   const navigate = useNavigate();
 
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [reports, setReports] = useState<Reports>(loaderReports || {});
+  const [entryIndexToEdit, setEntryIndexToEdit] = useState<number | null>(null);
+
   useEffect(() => {
     if (typeof actionData?.updatedReports === "object") {
       setReports((oldReports) => ({
@@ -168,12 +182,12 @@ export default function Home() {
     }
   }, [actionData?.updatedReports]);
 
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [reports, setReports] = useState<Reports>(loaderReports || {});
-  const [entryIndexToEdit, setEntryIndexToEdit] = useState<number | null>(null);
-
-  const selectedReport = useMemo(() => {
-    return reports[format(selectedDate, DATE_FORMAT)] || null;
+  const selectedReport: Report = useMemo(() => {
+    return (
+      reports[format(selectedDate, DATE_FORMAT)] || {
+        entries: [],
+      }
+    );
   }, [selectedDate, reports]);
 
   return (
@@ -202,25 +216,54 @@ export default function Home() {
           </div>
         </div>
         <div className="col-span-4 flex flex-col gap-4">
-          {selectedReport?.length ? (
-            selectedReport.map((reportEntry, i) => (
-              <ReportEntryCard
-                key={`${reportEntry.start}-${reportEntry.end}-${i}`}
-                entryIndex={i}
-                entry={reportEntry}
-                selectedDate={selectedDate}
-                onEditClick={() => {
-                  setEntryIndexToEdit(i);
-                }}
-              />
-            ))
-          ) : (
-            <div className="rounded-lg border p-3 text-muted-foreground">
-              No entries yet
+          {!selectedReport.issues && (
+            <div className="col-span-4 flex flex-col gap-4">
+              {selectedReport.entries?.length ? (
+                selectedReport.entries.map((reportEntry, i) => (
+                  <ReportEntryCard
+                    key={`${reportEntry.start}-${reportEntry.end}-${i}`}
+                    entryIndex={i}
+                    entry={reportEntry}
+                    selectedDate={selectedDate}
+                    onEditClick={() => {
+                      setEntryIndexToEdit(i);
+                    }}
+                  />
+                ))
+              ) : (
+                <div className="rounded-lg border p-3 text-muted-foreground">
+                  No entries yet
+                </div>
+              )}
+            </div>
+          )}
+          {!!selectedReport.issues && (
+            <div className="col-span-4 flex flex-col gap-4">
+              {selectedReport.issues?.map((issue) => (
+                <div
+                  key={getDotPath(issue)}
+                  className="rounded-lg border p-3 text-muted-foreground"
+                >
+                  <p>{issue.message}</p>
+                  {typeof issue.input === "string" && (
+                    <p>
+                      Invalid value:{" "}
+                      <Badge
+                        variant="destructive"
+                        className="max-w-full line-clamp-1 break-words inline-flex"
+                      >
+                        {issue.input}
+                      </Badge>
+                    </p>
+                  )}
+                </div>
+              ))}
             </div>
           )}
           <Button
-            onClick={() => setEntryIndexToEdit(selectedReport?.length || 0)}
+            onClick={() =>
+              setEntryIndexToEdit(selectedReport.entries?.length || 0)
+            }
           >
             Add new entry
           </Button>
