@@ -1,5 +1,6 @@
 import { Form, Link } from "react-router";
 import { Button } from "./ui/button";
+import ThemeSwitcher from "./theme-switcher";
 
 export function AppHeader() {
   return (
@@ -13,12 +14,15 @@ export function AppHeader() {
             Overview
           </Link>
         </nav>
-        <Form method="POST">
-          <input type="hidden" name="intent" value="close-directory" />
-          <Button variant="outline" type="submit">
-            Close current directory
-          </Button>
-        </Form>
+        <div className="flex items-center gap-4">
+          <Form method="POST">
+            <input type="hidden" name="intent" value="close-directory" />
+            <Button variant="outline" type="submit">
+              Close current directory
+            </Button>
+          </Form>
+          <ThemeSwitcher />
+        </div>
       </div>
     </div>
   );
