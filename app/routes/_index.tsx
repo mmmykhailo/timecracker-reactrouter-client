@@ -7,6 +7,7 @@ import HoursCalendar from "~/components/hours-calendar";
 import {
   calculateDailyDurations,
   DATE_FORMAT,
+  formatDuration,
   readReport,
   readReports,
   writeReport,
@@ -28,6 +29,9 @@ import { RotateCw } from "lucide-react";
 import { getDotPath, safeParse } from "valibot";
 import { EntryFormSchema } from "~/lib/schema";
 import { Badge } from "~/components/ui/badge";
+import { Separator } from "~/components/ui/separator";
+import { calculateDuration } from "~/lib/timeStrings";
+import { cn } from "~/lib/utils";
 
 export function meta() {
   return [
@@ -222,20 +226,56 @@ export default function Home() {
           </div>
         </div>
         {!selectedReport.issues && (
-          <div className="col-span-4 flex flex-col gap-4">
+          <div className="col-span-4 flex flex-col gap-3">
             {selectedReport.entries?.length ? (
-              selectedReport.entries.map((reportEntry, i) => (
-                <ReportEntryCard
-                  key={`${reportEntry.start}-${reportEntry.end}-${i}`}
-                  isInvalid={selectedReport.hasNegativeDuration}
-                  entryIndex={i}
-                  entry={reportEntry}
-                  selectedDate={selectedDate}
-                  onEditClick={() => {
-                    setEntryIndexToEdit(i);
-                  }}
-                />
-              ))
+              selectedReport.entries.map((reportEntry, i) => {
+                const prevReportEntry =
+                  (i > 0 && selectedReport.entries?.[i - 1]) || null;
+                const breakDuration =
+                  (prevReportEntry &&
+                    calculateDuration(
+                      prevReportEntry.end,
+                      reportEntry.start,
+                    )) ||
+                  0;
+
+                return (
+                  <>
+                    {!!breakDuration && (
+                      <div className="flex items-center gap-4">
+                        <Separator
+                          className={cn("flex-1", {
+                            "bg-destructive": breakDuration < 0,
+                          })}
+                        />
+                        <span
+                          className={cn({
+                            "text-muted-foreground": breakDuration > 0,
+                            "text-destructive": breakDuration < 0,
+                          })}
+                        >
+                          {formatDuration(breakDuration)} break
+                        </span>
+                        <Separator
+                          className={cn("flex-1", {
+                            "bg-destructive": breakDuration < 0,
+                          })}
+                        />
+                      </div>
+                    )}
+                    <ReportEntryCard
+                      key={`${reportEntry.start}-${reportEntry.end}-${i}`}
+                      isInvalid={selectedReport.hasNegativeDuration}
+                      entryIndex={i}
+                      entry={reportEntry}
+                      selectedDate={selectedDate}
+                      onEditClick={() => {
+                        setEntryIndexToEdit(i);
+                      }}
+                    />
+                  </>
+                );
+              })
             ) : (
               <div className="rounded-lg border p-3 text-muted-foreground">
                 No entries yet

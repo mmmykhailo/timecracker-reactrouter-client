@@ -40,9 +40,13 @@ export function formatDuration(minutes: number): string {
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
 
-  if (hours === 0) return `${remainingMinutes}m`;
-  if (remainingMinutes === 0) return `${hours}h`;
-  return `${hours}h ${remainingMinutes}m`;
+  if (hours === 0) {
+    return `${remainingMinutes}m`;
+  }
+  if (remainingMinutes === 0) {
+    return `${hours}h`;
+  }
+  return `${hours}h ${Math.abs(remainingMinutes)}m`;
 }
 
 export const calculateDailyDurations = (reports: Reports): DailyDurations => {
