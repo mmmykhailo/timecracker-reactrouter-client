@@ -1,11 +1,5 @@
 import { getISOWeek, parse } from "date-fns";
-import {
-  safeParse,
-  type BaseIssue,
-  type GenericIssue,
-  type RegexIssue,
-  type StringIssue,
-} from "valibot";
+import { safeParse, type RegexIssue, type StringIssue } from "valibot";
 import { TimeSchema, type TimeIssue } from "./schema";
 import { calculateDuration, parseTimeIntoMinutes } from "./timeStrings";
 
