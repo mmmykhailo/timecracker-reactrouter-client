@@ -215,59 +215,60 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="col-span-4 flex flex-col gap-4">
-          {!selectedReport.issues && (
-            <div className="col-span-4 flex flex-col gap-4">
-              {selectedReport.entries?.length ? (
-                selectedReport.entries.map((reportEntry, i) => (
-                  <ReportEntryCard
-                    key={`${reportEntry.start}-${reportEntry.end}-${i}`}
-                    entryIndex={i}
-                    entry={reportEntry}
-                    selectedDate={selectedDate}
-                    onEditClick={() => {
-                      setEntryIndexToEdit(i);
-                    }}
-                  />
-                ))
-              ) : (
-                <div className="rounded-lg border p-3 text-muted-foreground">
-                  No entries yet
-                </div>
-              )}
-            </div>
-          )}
-          {!!selectedReport.issues && (
-            <div className="col-span-4 flex flex-col gap-4">
-              {selectedReport.issues?.map((issue) => (
-                <div
-                  key={getDotPath(issue)}
-                  className="rounded-lg border p-3 text-muted-foreground"
-                >
-                  <p>{issue.message}</p>
-                  {typeof issue.input === "string" && (
-                    <p>
-                      Invalid value:{" "}
-                      <Badge
-                        variant="destructive"
-                        className="max-w-full line-clamp-1 break-words inline-flex"
-                      >
-                        {issue.input}
-                      </Badge>
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-          <Button
-            onClick={() =>
-              setEntryIndexToEdit(selectedReport.entries?.length || 0)
-            }
-          >
-            Add new entry
-          </Button>
-        </div>
+        {!selectedReport.issues && (
+          <div className="col-span-4 flex flex-col gap-4">
+            {selectedReport.entries?.length ? (
+              selectedReport.entries.map((reportEntry, i) => (
+                <ReportEntryCard
+                  key={`${reportEntry.start}-${reportEntry.end}-${i}`}
+                  entryIndex={i}
+                  entry={reportEntry}
+                  selectedDate={selectedDate}
+                  onEditClick={() => {
+                    setEntryIndexToEdit(i);
+                  }}
+                />
+              ))
+            ) : (
+              <div className="rounded-lg border p-3 text-muted-foreground">
+                No entries yet
+              </div>
+            )}
+
+            <Button
+              onClick={() =>
+                setEntryIndexToEdit(selectedReport.entries?.length || 0)
+              }
+            >
+              Add new entry
+            </Button>
+          </div>
+        )}
+        {!!selectedReport.issues && (
+          <div className="col-span-4 flex flex-col gap-4">
+            {selectedReport.issues?.map((issue) => (
+              <div
+                key={getDotPath(issue)}
+                className="rounded-lg border p-3 text-muted-foreground"
+              >
+                <p>{issue.message}</p>
+                {typeof issue.input === "string" && (
+                  <p>
+                    <Badge
+                      variant="destructive"
+                      className="max-w-full line-clamp-1 break-words inline-flex"
+                    >
+                      {issue.input}
+                    </Badge>
+                  </p>
+                )}
+                <p className="mt-2 text-foreground">
+                  Please fix your file manually.
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       <EntryForm
         report={selectedReport}
