@@ -7,6 +7,7 @@ import {
   type StringIssue,
 } from "valibot";
 import { TimeSchema, type TimeIssue } from "./schema";
+import { calculateDuration, parseTimeIntoMinutes } from "./timeStrings";
 
 export const TIMEREPORT_FILENAME_PREFIX = "timereport - ";
 export const WEEK_DIR_NAME_REGEX = /^week (\d{2})$/i;
@@ -36,17 +37,6 @@ export type Report = {
 export type Reports = Record<string, Report>;
 
 export type DailyDurations = Record<string, number>;
-
-function parseTimeIntoMinutes(timeStr: string): number {
-  const [hours, minutes] = timeStr.split(":").map(Number);
-  return hours * 60 + minutes;
-}
-
-function calculateDuration(start: string, end: string): number {
-  const startMinutes = parseTimeIntoMinutes(start);
-  const endMinutes = parseTimeIntoMinutes(end);
-  return endMinutes - startMinutes;
-}
 
 export function formatDuration(minutes: number): string {
   const hours = Math.floor(minutes / 60);
