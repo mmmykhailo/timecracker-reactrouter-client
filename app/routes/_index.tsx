@@ -37,16 +37,22 @@ export function meta() {
 }
 
 export async function clientLoader() {
-  const rootHandle: FileSystemDirectoryHandle | undefined =
-    await idbGet("rootHandle");
+  try {
+    const rootHandle: FileSystemDirectoryHandle | undefined =
+      await idbGet("rootHandle");
 
-  if (!rootHandle) {
+    if (!rootHandle) {
+      return redirect("/welcome");
+    }
+
+    return {
+      reports: await readReports(rootHandle),
+    };
+  } catch (e) {
+    console.error(e);
+    await idbDel("rootHandle");
     return redirect("/welcome");
   }
-
-  return {
-    reports: await readReports(rootHandle),
-  };
 }
 
 export async function clientAction({ request }: ClientActionFunctionArgs) {
