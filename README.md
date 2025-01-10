@@ -1,18 +1,14 @@
-# Welcome to React Router!
+# Timecracker
 
-A modern, production-ready template for building full-stack React applications using React Router.
-
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+A stupidly simple timetracker.
 
 ## Features
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+- 🚀 Works fully offline after page load
+- 🔒 Secure, your data doesn't go through network
+- 📖 File-based, keep your record even if you decide to stop using the app
+- 🎉 Both dark and light theme
+- 📦 No need to install, just use it in your browser
 
 ## Getting Started
 
@@ -21,7 +17,7 @@ A modern, production-ready template for building full-stack React applications u
 Install the dependencies:
 
 ```bash
-npm install
+bun install
 ```
 
 ### Development
@@ -29,7 +25,7 @@ npm install
 Start the development server with HMR:
 
 ```bash
-npm run dev
+bun dev
 ```
 
 Your application will be available at `http://localhost:5173`.
@@ -39,62 +35,29 @@ Your application will be available at `http://localhost:5173`.
 Create a production build:
 
 ```bash
-npm run build
+bun run build
 ```
 
 ## Deployment
 
-### Docker Deployment
+This application can be deployed to any hosting as it only needs to serve static files.
 
-This template includes three Dockerfiles optimized for different package managers:
+You can find Github Pages deploy script in `.github/workflows/deploy.yml`
 
-- `Dockerfile` - for npm
-- `Dockerfile.pnpm` - for pnpm
-- `Dockerfile.bun` - for bun
 
-To build and run using Docker:
+## Tech stack
 
-```bash
-# For npm
-docker build -t my-app .
+- TypeScript
+- React Router 7 (in SPA mode)
+- Tailwind
+- Valibot
+- Biome
+- idb-keyval (as persistent storage for directory handle)
 
-# For pnpm
-docker build -f Dockerfile.pnpm -t my-app .
-
-# For bun
-docker build -f Dockerfile.bun -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
+A lot of [shadcn/ui](https://ui.shadcn.com/) components were used and design is generally inspired by shadcn/ui style.
 
 ---
 
-Built with ❤️ using React Router.
+Built with ❤️ in 🇺🇦
+
+If you have any questions, feel free to contact me by [telegram](https://t.me/mrdr_scn) (higher chance of quick answer) or [email](mailto:mmmykhailo@proton.me).
