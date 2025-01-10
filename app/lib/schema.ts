@@ -10,9 +10,9 @@ import {
   type InferIssue,
   getDotPath,
   type BaseIssue,
-  custom,
   check,
   forward,
+  trim,
 } from "valibot";
 import { calculateDuration } from "./timeStrings";
 
@@ -35,9 +35,9 @@ export const EntryFormSchema = pipe(
   object({
     start: TimeSchema,
     end: TimeSchema,
-    project: pipe(string(), minLength(1)),
-    activity: optional(string()),
-    description: pipe(string(), minLength(1)),
+    project: pipe(string(), trim(), minLength(1)),
+    activity: optional(pipe(string(), trim())),
+    description: pipe(string(), trim(), minLength(1)),
     date: DateSchema,
     entryIndex: pipe(
       string(),
