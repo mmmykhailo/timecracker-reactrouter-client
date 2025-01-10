@@ -221,7 +221,7 @@ export default function Home() {
               selectedReport.entries.map((reportEntry, i) => (
                 <ReportEntryCard
                   key={`${reportEntry.start}-${reportEntry.end}-${i}`}
-                  isInvalid={selectedReport.hasNegativeTime}
+                  isInvalid={selectedReport.hasNegativeDuration}
                   entryIndex={i}
                   entry={reportEntry}
                   selectedDate={selectedDate}
@@ -237,7 +237,7 @@ export default function Home() {
             )}
 
             <Button
-              disabled={selectedReport.hasNegativeTime}
+              disabled={selectedReport.hasNegativeDuration}
               onClick={() =>
                 setEntryIndexToEdit(selectedReport.entries?.length || 0)
               }

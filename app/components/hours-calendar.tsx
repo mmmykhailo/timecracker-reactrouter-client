@@ -17,6 +17,7 @@ import {
   DATE_FORMAT,
   formatDuration,
   type DailyDurations,
+  type DailyDurationsItem,
 } from "~/lib/reports";
 
 type HoursCalendarProps = {
@@ -29,12 +30,30 @@ type HoursCalendarProps = {
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function calculateMonthlyTotal(
-  data: Record<string, number>,
+  dailyDurations: DailyDurations,
   targetMonth: Date,
 ): number {
-  return Object.entries(data)
-    .filter(([date]) => isSameMonth(parseISO(date), targetMonth)) // Check if the dates are in the same month
-    .reduce((total, [, value]) => total + value, 0); // Sum the values
+  return Object.entries(dailyDurations)
+    .filter(
+      ([date, dailyDuration]) =>
+        !dailyDuration.hasNegativeDuration &&
+        isSameMonth(parseISO(date), targetMonth),
+    )
+    .reduce((total, [, durationItem]) => total + durationItem.duration, 0);
+}
+
+function getHoursBadgeVariant(
+  durationItem: DailyDurationsItem,
+  isSelected?: boolean,
+) {
+  if (durationItem.hasNegativeDuration) {
+    return "destructive";
+  }
+  if (durationItem.duration === 0 || isSelected) {
+    return "secondary";
+  }
+
+  return "default";
 }
 
 const HoursCalendar = ({
@@ -60,7 +79,9 @@ const HoursCalendar = ({
   const renderDayCell = (cellDate: Date) => {
     const formattedMonth = format(currentMonth, "yyyyMM");
     const formattedDate = format(cellDate, DATE_FORMAT);
-    const duration = dailyDurations[formattedDate] || 0;
+    const durationItem = dailyDurations[formattedDate] || {
+      duration: 0,
+    };
 
     const isToday = isSameDay(cellDate, new Date());
     const isSelected = !!selectedDate && isSameDay(cellDate, selectedDate);
@@ -92,9 +113,11 @@ const HoursCalendar = ({
             className={cn("pointer-events-none opacity-90 whitespace-nowrap", {
               "opacity-50": !isSelectedMonth,
             })}
-            variant={duration === 0 || isSelected ? "secondary" : "default"}
+            variant={getHoursBadgeVariant(durationItem, isSelected)}
           >
-            {formatDuration(duration)}
+            {durationItem.hasNegativeDuration
+              ? "err"
+              : formatDuration(durationItem.duration)}
           </Badge>
         </div>
       </button>

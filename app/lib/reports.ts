@@ -25,12 +25,16 @@ export type ReportEntry = {
 export type Report = {
   entries?: Array<ReportEntry>;
   issues?: Array<TimeIssue>;
-  hasNegativeTime?: boolean;
+  hasNegativeDuration?: boolean;
 };
 
 export type Reports = Record<string, Report>;
 
-export type DailyDurations = Record<string, number>;
+export type DailyDurationsItem = {
+  duration: number;
+  hasNegativeDuration?: boolean;
+};
+export type DailyDurations = Record<string, DailyDurationsItem>;
 
 export function formatDuration(minutes: number): string {
   const hours = Math.floor(minutes / 60);
@@ -42,28 +46,33 @@ export function formatDuration(minutes: number): string {
 }
 
 export const calculateDailyDurations = (reports: Reports): DailyDurations => {
-  return Object.entries(reports).reduce(
-    (acc, [date, dayReport]) => {
-      // Sum up all durations for the day
-      const duration =
-        dayReport.entries?.reduce((sum, entry) => sum + entry.duration, 0) || 0;
+  return Object.entries(reports).reduce((acc, [date, dayReport]) => {
+    // Sum up all durations for the day
+    const duration =
+      dayReport.entries?.reduce((sum, entry) => {
+        if (entry.duration >= 0) {
+          return sum + entry.duration;
+        }
+        return sum;
+      }, 0) || 0;
 
-      acc[date] = duration;
+    acc[date] = {
+      duration,
+      hasNegativeDuration: dayReport.hasNegativeDuration,
+    };
 
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
+    return acc;
+  }, {} as DailyDurations);
 };
 
 export function parseReport(input: string): {
   issues?: Array<StringIssue | RegexIssue<string>>;
   entries?: ReportEntry[];
-  hasNegativeTime?: boolean;
+  hasNegativeDuration?: boolean;
 } {
   const lines = input.split("\n").filter((line) => line.trim());
   const entries: ReportEntry[] = [];
-  let hasNegativeTime = false;
+  let hasNegativeDuration = false;
 
   for (let i = 0; i < lines.length - 1; i++) {
     const currentLine = lines[i];
@@ -82,11 +91,11 @@ export function parseReport(input: string): {
       };
     }
 
-    if (calculateDuration(startTime, endTime) < 0) {
-      hasNegativeTime = true;
-    }
-
     const duration = calculateDuration(startTime, endTime);
+
+    if (duration < 0) {
+      hasNegativeDuration = true;
+    }
 
     const parts = currentLine.split(" - ");
 
@@ -119,7 +128,7 @@ export function parseReport(input: string): {
 
   return {
     entries: entries.filter((entry) => entry.project && entry.description),
-    hasNegativeTime: hasNegativeTime,
+    hasNegativeDuration: hasNegativeDuration,
   };
 }
 
