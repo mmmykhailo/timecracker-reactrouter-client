@@ -30,6 +30,7 @@ export type ReportEntry = {
 export type Report = {
   entries?: Array<ReportEntry>;
   issues?: Array<TimeIssue>;
+  hasNegativeTime?: boolean;
 };
 
 export type Reports = Record<string, Report>;
@@ -74,9 +75,11 @@ export const calculateDailyDurations = (reports: Reports): DailyDurations => {
 export function parseReport(input: string): {
   issues?: Array<StringIssue | RegexIssue<string>>;
   entries?: ReportEntry[];
+  hasNegativeTime?: boolean;
 } {
   const lines = input.split("\n").filter((line) => line.trim());
   const entries: ReportEntry[] = [];
+  let hasNegativeTime = false;
 
   for (let i = 0; i < lines.length - 1; i++) {
     const currentLine = lines[i];
@@ -93,6 +96,10 @@ export function parseReport(input: string): {
       return {
         issues: parsedStartTime.issues || parsedEndTime.issues || [],
       };
+    }
+
+    if (calculateDuration(startTime, endTime) < 0) {
+      hasNegativeTime = true;
     }
 
     const duration = calculateDuration(startTime, endTime);
@@ -128,6 +135,7 @@ export function parseReport(input: string): {
 
   return {
     entries: entries.filter((entry) => entry.project && entry.description),
+    hasNegativeTime: hasNegativeTime,
   };
 }
 

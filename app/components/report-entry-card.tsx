@@ -3,8 +3,10 @@ import { Button } from "./ui/button";
 import { Edit, Trash } from "lucide-react";
 import { Form } from "react-router";
 import { format } from "date-fns";
+import { cn } from "~/lib/utils";
 
 type ReportEntryCardProps = {
+  isInvalid?: boolean;
   entry: ReportEntry;
   entryIndex: number;
   selectedDate: Date;
@@ -12,13 +14,21 @@ type ReportEntryCardProps = {
 };
 
 export default function ReportEntryCard({
+  isInvalid,
   entry: { project, activity, description, start, end, duration },
   entryIndex,
   selectedDate,
   onEditClick,
 }: ReportEntryCardProps) {
   return (
-    <div className="flex justify-between gap-2 rounded-lg border p-3 text-left text-sm">
+    <div
+      className={cn(
+        "flex justify-between gap-2 rounded-lg border p-3 text-left text-sm",
+        {
+          "border-destructive": isInvalid,
+        },
+      )}
+    >
       <div>
         <div className="font-semibold">{project}</div>
         <div className="font-semibold text-sm">{activity}</div>
