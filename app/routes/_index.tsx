@@ -101,11 +101,7 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
 
       const report = await readReport(rootHandle, dateString);
 
-      const entries = report?.entries;
-
-      if (!entries) {
-        return null;
-      }
+      const entries = report?.entries || [];
 
       entries[entryIndex] = entry;
 
