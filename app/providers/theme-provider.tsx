@@ -14,6 +14,8 @@ type ThemeContextType = [Theme, Dispatch<SetStateAction<Theme>>];
 
 const ThemeContext = createContext<ThemeContextType>(["system", () => {}]);
 
+const THEME_STORAGE_KEY = "theme-preference";
+
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
@@ -23,9 +25,18 @@ export const useTheme = () => {
 };
 
 export default function ThemeProvider({ children }: PropsWithChildren) {
-  const [theme, setTheme] = useState<Theme>("system");
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem(THEME_STORAGE_KEY);
+      if (stored === "light" || stored === "dark" || stored === "system") {
+        return stored;
+      }
+    }
+    return "system";
+  });
 
   useEffect(() => {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
     switch (theme) {
       case "system": {
         const syncTheme = (media: MediaQueryList | MediaQueryListEvent) => {

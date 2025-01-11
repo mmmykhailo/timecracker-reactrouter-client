@@ -6,10 +6,9 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
-
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
-import ThemeProvider, { useTheme } from "./providers/theme-provider";
+import ThemeProvider from "./providers/theme-provider";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -27,7 +26,10 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="scrollbar-gutter-stable dark bg-background">
+    <html
+      lang="en"
+      className="scrollbar-gutter-stable dark bg-background text-foreground"
+    >
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
