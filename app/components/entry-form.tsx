@@ -76,6 +76,7 @@ const EntryForm = ({
             <div className="space-y-2">
               <Label htmlFor="start">Start Time *</Label>
               <Input
+                required
                 id="start"
                 name="start"
                 className={cn({
@@ -92,6 +93,7 @@ const EntryForm = ({
             <div className="space-y-2">
               <Label htmlFor="end">End Time *</Label>
               <Input
+                required
                 id="end"
                 name="end"
                 className={cn({
@@ -110,6 +112,7 @@ const EntryForm = ({
           <div className="space-y-2">
             <Label htmlFor="project">Project *</Label>
             <Input
+              required
               id="project"
               name="project"
               className={cn({
@@ -117,6 +120,7 @@ const EntryForm = ({
               })}
               defaultValue={entry?.project || ""}
               autoComplete="off"
+              maxLength={32}
               placeholder="Project name"
             />
           </div>
@@ -131,6 +135,7 @@ const EntryForm = ({
               })}
               defaultValue={entry?.activity || ""}
               autoComplete="off"
+              maxLength={32}
               placeholder="Activity"
             />
           </div>
@@ -138,6 +143,7 @@ const EntryForm = ({
           <div className="space-y-2">
             <Label htmlFor="description">Description *</Label>
             <Textarea
+              required
               id="description"
               name="description"
               className={cn("h-24", {
@@ -145,6 +151,7 @@ const EntryForm = ({
               })}
               defaultValue={entry?.description || ""}
               autoComplete="off"
+              maxLength={256}
               placeholder="Description"
             />
           </div>

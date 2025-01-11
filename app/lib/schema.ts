@@ -13,6 +13,7 @@ import {
   check,
   forward,
   trim,
+  maxLength,
 } from "valibot";
 import { calculateDuration } from "./timeStrings";
 
@@ -35,9 +36,9 @@ export const EntryFormSchema = pipe(
   object({
     start: TimeSchema,
     end: TimeSchema,
-    project: pipe(string(), trim(), minLength(1)),
-    activity: optional(pipe(string(), trim())),
-    description: pipe(string(), trim(), minLength(1)),
+    project: pipe(string(), trim(), minLength(1), maxLength(32)),
+    activity: optional(pipe(string(), trim(), maxLength(32))),
+    description: pipe(string(), trim(), minLength(1), maxLength(256)),
     date: DateSchema,
     entryIndex: pipe(
       string(),
