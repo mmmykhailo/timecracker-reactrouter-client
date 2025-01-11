@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { get as idbGet, del as idbDel } from "idb-keyval";
 import { Button } from "~/components/ui/button";
 import { AppHeader } from "~/components/app-header";
@@ -240,7 +240,9 @@ export default function Home() {
                   0;
 
                 return (
-                  <>
+                  <Fragment
+                    key={`${reportEntry.start}-${reportEntry.end}-${i}`}
+                  >
                     {!!breakDuration && (
                       <div className="flex items-center gap-4">
                         <Separator
@@ -264,7 +266,6 @@ export default function Home() {
                       </div>
                     )}
                     <ReportEntryCard
-                      key={`${reportEntry.start}-${reportEntry.end}-${i}`}
                       isInvalid={selectedReport.hasNegativeDuration}
                       entryIndex={i}
                       entry={reportEntry}
@@ -273,7 +274,7 @@ export default function Home() {
                         setEntryIndexToEdit(i);
                       }}
                     />
-                  </>
+                  </Fragment>
                 );
               })
             ) : (
