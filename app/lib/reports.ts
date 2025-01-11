@@ -1,7 +1,8 @@
 import { getISOWeek, parse } from "date-fns";
 import { safeParse, type RegexIssue, type StringIssue } from "valibot";
 import { TimeSchema, type TimeIssue } from "./schema";
-import { calculateDuration, parseTimeIntoMinutes } from "./timeStrings";
+import { calculateDuration, parseTimeIntoMinutes } from "./time-strings";
+import { getWeekEndDateString, getWeekStartDateString } from "./date-strings";
 
 export const TIMEREPORT_FILENAME_PREFIX = "timereport - ";
 export const WEEK_DIR_NAME_REGEX = /^week (\d{2})$/i;
@@ -32,41 +33,115 @@ export type Reports = Record<string, Report>;
 
 export type DailyDurationsItem = {
   duration: number;
+  byProject: Record<string, number>;
   hasNegativeDuration?: boolean;
 };
-export type DailyDurations = Record<string, DailyDurationsItem>;
+export type WeeklyDurationsItem = {
+  duration: number;
+  byProject: Record<string, number>;
+  hasNegativeDuration?: boolean;
+};
+export type MonthlyDurationsItem = {
+  duration: number;
+  byProject: Record<string, number>;
+  hasNegativeDuration?: boolean;
+  yearMonth: string; // yyyyMM format
+};
 
-export function formatDuration(minutes: number): string {
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-
-  if (hours === 0) {
-    return `${remainingMinutes}m`;
-  }
-  if (remainingMinutes === 0) {
-    return `${hours}h`;
-  }
-  return `${hours}h ${Math.abs(remainingMinutes)}m`;
-}
+export type DailyDurations = Record<string, DailyDurationsItem>; // key is yyyyMMdd
+export type WeeklyDurations = Record<string, WeeklyDurationsItem>; // key is yyyyMMdd of week start
+export type MonthlyDurations = Record<string, MonthlyDurationsItem>; // key is yyyyMM
 
 export const calculateDailyDurations = (reports: Reports): DailyDurations => {
   return Object.entries(reports).reduce((acc, [date, dayReport]) => {
-    // Sum up all durations for the day
-    const duration =
-      dayReport.entries?.reduce((sum, entry) => {
-        if (entry.duration >= 0) {
-          return sum + entry.duration;
-        }
-        return sum;
-      }, 0) || 0;
+    let duration = 0;
+    const byProject: DailyDurationsItem["byProject"] = {};
+    for (const entry of dayReport.entries || []) {
+      if (!entry.duration || entry.duration < 0) {
+        continue;
+      }
+
+      duration += entry.duration;
+
+      if (!entry.project) {
+        continue;
+      }
+
+      if (!byProject[entry.project]) {
+        byProject[entry.project] = entry.duration;
+        continue;
+      }
+
+      byProject[entry.project] = byProject[entry.project] + entry.duration;
+    }
 
     acc[date] = {
       duration,
+      byProject,
       hasNegativeDuration: dayReport.hasNegativeDuration,
     };
 
     return acc;
   }, {} as DailyDurations);
+};
+
+export const calculateWeeklyDurations = (
+  dailyDurations: DailyDurations,
+): WeeklyDurations => {
+  return Object.entries(dailyDurations).reduce((acc, [date, dayData]) => {
+    const weekStartDate = getWeekStartDateString(date);
+
+    if (!acc[weekStartDate]) {
+      acc[weekStartDate] = {
+        duration: 0,
+        byProject: {},
+        hasNegativeDuration: false,
+      };
+    }
+
+    acc[weekStartDate].duration += dayData.duration;
+
+    for (const [project, duration] of Object.entries(dayData.byProject)) {
+      acc[weekStartDate].byProject[project] =
+        (acc[weekStartDate].byProject[project] || 0) + duration;
+    }
+
+    if (dayData.hasNegativeDuration) {
+      acc[weekStartDate].hasNegativeDuration = true;
+    }
+
+    return acc;
+  }, {} as WeeklyDurations);
+};
+
+export const calculateMonthlyDurations = (
+  dailyDurations: DailyDurations,
+): MonthlyDurations => {
+  return Object.entries(dailyDurations).reduce((acc, [date, dayData]) => {
+    const yearMonth = date.slice(0, 6);
+
+    if (!acc[yearMonth]) {
+      acc[yearMonth] = {
+        duration: 0,
+        byProject: {},
+        hasNegativeDuration: false,
+        yearMonth,
+      };
+    }
+
+    acc[yearMonth].duration += dayData.duration;
+
+    for (const [project, duration] of Object.entries(dayData.byProject)) {
+      acc[yearMonth].byProject[project] =
+        (acc[yearMonth].byProject[project] || 0) + duration;
+    }
+
+    if (dayData.hasNegativeDuration) {
+      acc[yearMonth].hasNegativeDuration = true;
+    }
+
+    return acc;
+  }, {} as MonthlyDurations);
 };
 
 export function parseReport(input: string): {

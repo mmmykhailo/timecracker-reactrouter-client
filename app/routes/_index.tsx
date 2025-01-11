@@ -7,7 +7,6 @@ import HoursCalendar from "~/components/hours-calendar";
 import {
   calculateDailyDurations,
   DATE_FORMAT,
-  formatDuration,
   readReport,
   readReports,
   writeReport,
@@ -30,7 +29,7 @@ import { getDotPath, safeParse } from "valibot";
 import { EntryFormSchema } from "~/lib/schema";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
-import { calculateDuration } from "~/lib/timeStrings";
+import { calculateDuration, formatDuration } from "~/lib/time-strings";
 import { cn } from "~/lib/utils";
 
 export function meta() {

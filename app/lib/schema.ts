@@ -15,7 +15,7 @@ import {
   trim,
   maxLength,
 } from "valibot";
-import { calculateDuration } from "./timeStrings";
+import { calculateDuration } from "./time-strings";
 
 export const TimeSchema = pipe(
   string(),

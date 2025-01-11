@@ -15,10 +15,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "./ui/badge";
 import {
   DATE_FORMAT,
-  formatDuration,
   type DailyDurations,
   type DailyDurationsItem,
 } from "~/lib/reports";
+import { formatDuration } from "~/lib/time-strings";
 
 type HoursCalendarProps = {
   isCompact?: boolean;

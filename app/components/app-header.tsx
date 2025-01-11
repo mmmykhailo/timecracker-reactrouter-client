@@ -13,9 +13,15 @@ export function AppHeader() {
           >
             Overview
           </Link>
+          <Link
+            className="text-sm font-medium transition-colors hover:text-primary"
+            to="/stats"
+          >
+            Stats
+          </Link>
         </nav>
         <div className="flex items-center gap-4">
-          <Form method="POST">
+          <Form method="POST" action="/?index">
             <input type="hidden" name="intent" value="close-directory" />
             <Button variant="outline" type="submit">
               Close current directory

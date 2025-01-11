@@ -1,9 +1,10 @@
-import { formatDuration, type ReportEntry } from "~/lib/reports";
+import type { ReportEntry } from "~/lib/reports";
 import { Button } from "./ui/button";
 import { Edit, Trash } from "lucide-react";
 import { Form } from "react-router";
 import { format } from "date-fns";
 import { cn } from "~/lib/utils";
+import { formatDuration } from "~/lib/time-strings";
 
 type ReportEntryCardProps = {
   isInvalid?: boolean;
