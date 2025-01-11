@@ -23,13 +23,15 @@ const badgeVariants = cva(
   },
 );
 
-export interface BadgeProps
-  extends HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+export type BadgeProps = HTMLAttributes<HTMLDivElement> &
+  VariantProps<typeof badgeVariants> & {
+    tag?: "div" | "span";
+  };
 
-function Badge({ className, variant, ...props }: BadgeProps) {
+function Badge({ className, variant, tag = "div", ...props }: BadgeProps) {
+  const Tag = tag;
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <Tag className={cn(badgeVariants({ variant }), className)} {...props} />
   );
 }
 

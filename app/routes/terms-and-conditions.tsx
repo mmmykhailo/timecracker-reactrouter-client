@@ -43,29 +43,25 @@ export default function TermsAndConditionsPage() {
             ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN
             CONNECTION WITH THE APPLICATION OR THE USE OR OTHER DEALINGS IN THE
             APPLICATION. THIS INCLUDES, BUT IS NOT LIMITED TO:
-            <ul>
-              <li>Any data loss or corruption</li>
-              <li>System failures or malfunctions</li>
-              <li>
-                Any direct, indirect, incidental, special, exemplary, or
-                consequential damages
-              </li>
-            </ul>
           </p>
+          <ul>
+            <li>Any data loss or corruption</li>
+            <li>System failures or malfunctions</li>
+            <li>
+              Any direct, indirect, incidental, special, exemplary, or
+              consequential damages
+            </li>
+          </ul>
           <h2>5. User Responsibilities</h2>
-          <p>
-            Users are responsible for:
-            <ul>
-              <li>Maintaining and backing up their own data</li>
-              <li>
-                Ensuring the Application is suitable for their intended use
-              </li>
-              <li>
-                Using the Application in compliance with all applicable laws and
-                regulations
-              </li>
-            </ul>
-          </p>
+          <p>Users are responsible for:</p>
+          <ul>
+            <li>Maintaining and backing up their own data</li>
+            <li>Ensuring the Application is suitable for their intended use</li>
+            <li>
+              Using the Application in compliance with all applicable laws and
+              regulations
+            </li>
+          </ul>
           <h2>6. Open Source License</h2>
           <p>
             The Application is distributed under CC0 1.0 Universal. Users may
@@ -81,7 +77,7 @@ export default function TermsAndConditionsPage() {
           <h2>8. Contact Information</h2>
           <p>
             For questions about these Terms, please contact me by email{" "}
-            <Badge variant="outline" className="px-1 text-sm">
+            <Badge tag="span" variant="outline" className="px-1 text-sm">
               mmmykhailo@proton.me
             </Badge>
             .
