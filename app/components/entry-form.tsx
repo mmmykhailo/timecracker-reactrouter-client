@@ -82,6 +82,7 @@ const EntryForm = ({
                   "border-destructive": !!findIssueByPath(issues, "start"),
                 })}
                 defaultValue={entry?.start || ""}
+                autoComplete="off"
                 placeholder="10:00"
                 onChange={onTimeChange}
                 onBlur={onTimeBlur}
@@ -97,6 +98,7 @@ const EntryForm = ({
                   "border-destructive": !!findIssueByPath(issues, "end"),
                 })}
                 defaultValue={entry?.end || ""}
+                autoComplete="off"
                 placeholder="10:15"
                 onChange={onTimeChange}
                 onBlur={onTimeBlur}
@@ -114,6 +116,7 @@ const EntryForm = ({
                 "border-destructive": !!findIssueByPath(issues, "project"),
               })}
               defaultValue={entry?.project || ""}
+              autoComplete="off"
               placeholder="Project name"
             />
           </div>
@@ -127,6 +130,7 @@ const EntryForm = ({
                 "border-destructive": !!findIssueByPath(issues, "activity"),
               })}
               defaultValue={entry?.activity || ""}
+              autoComplete="off"
               placeholder="Activity"
             />
           </div>
@@ -140,6 +144,7 @@ const EntryForm = ({
                 "border-destructive": !!findIssueByPath(issues, "description"),
               })}
               defaultValue={entry?.description || ""}
+              autoComplete="off"
               placeholder="Description"
             />
           </div>
