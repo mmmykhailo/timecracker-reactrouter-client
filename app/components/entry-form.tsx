@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { useEffect } from "react";
 import { findIssueByPath, type EntryFormIssue } from "~/lib/schema";
 import { cn } from "~/lib/utils";
+import { useTimeInput } from "~/hooks/use-time-input";
 
 type EntryFormProps = {
   report: Report | null;
@@ -33,6 +34,7 @@ const EntryForm = ({
   onClose,
 }: EntryFormProps) => {
   const navigation = useNavigation();
+  const { onChange: onTimeChange, onBlur: onTimeBlur } = useTimeInput();
   const entry = (entryIndex !== null && report?.entries?.[entryIndex]) || null;
 
   useEffect(() => {
@@ -81,6 +83,9 @@ const EntryForm = ({
                 })}
                 defaultValue={entry?.start || ""}
                 placeholder="10:00"
+                onChange={onTimeChange}
+                onBlur={onTimeBlur}
+                onFocus={(e) => e.target.select()}
               />
             </div>
             <div className="space-y-2">
@@ -93,6 +98,9 @@ const EntryForm = ({
                 })}
                 defaultValue={entry?.end || ""}
                 placeholder="10:15"
+                onChange={onTimeChange}
+                onBlur={onTimeBlur}
+                onFocus={(e) => e.target.select()}
               />
             </div>
           </div>
