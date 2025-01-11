@@ -29,10 +29,14 @@ export default function ReportEntryCard({
         },
       )}
     >
-      <div>
-        <div className="font-semibold">{project}</div>
-        <div className="font-semibold text-sm">{activity}</div>
-        <div className="text-muted-foreground text-sm">{description}</div>
+      <div className="flex-shrink min-w-0">
+        <div className="font-semibold line-clamp-1 break-words">{project}</div>
+        <div className="font-semibold text-sm line-clamp-1 break-words">
+          {activity}
+        </div>
+        <div className="text-muted-foreground text-sm break-words">
+          {description}
+        </div>
       </div>
       <div className="flex flex-col items-end justify-between gap-1 flex-shrink-0">
         <div className="text-muted-foreground text-sm">
