@@ -5,6 +5,7 @@ import {
   addMonths,
   isSameMonth,
 } from "date-fns";
+import { useHotkeys } from "react-hotkeys-hook";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { get as idbGet, del as idbDel } from "idb-keyval";
 import { Button } from "~/components/ui/button";
@@ -248,6 +249,12 @@ export default function Home() {
     }
   };
 
+  const handleAddNewEntryClick = () => {
+    setEntryIndexToEdit(selectedReport.entries?.length || 0);
+  };
+
+  useHotkeys("ctrl+space", handleAddNewEntryClick);
+
   return (
     <div className="min-w-[640px]">
       <AppHeader />
@@ -332,14 +339,17 @@ export default function Home() {
               </div>
             )}
 
-            <Button
-              disabled={selectedReport.hasNegativeDuration}
-              onClick={() =>
-                setEntryIndexToEdit(selectedReport.entries?.length || 0)
-              }
-            >
-              Add new entry
-            </Button>
+            <div className="grid gap-2">
+              <Button
+                disabled={selectedReport.hasNegativeDuration}
+                onClick={handleAddNewEntryClick}
+              >
+                Add new entry
+              </Button>
+              <div className="text-center text-sm text-muted-foreground">
+                or press Ctrl + Space
+              </div>
+            </div>
           </div>
         )}
         {!!selectedReport.issues && (
