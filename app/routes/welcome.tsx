@@ -50,6 +50,11 @@ export default function WelcomePage() {
             </Button>
           </div>
           <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary  ">
+            If don't have a timetracker folder yet, I strongly advise you to
+            create a new one, do not select a folder that contains anything
+            non-related.
+            <br />
+            <br />
             By clicking "Select folder", you agree to my{" "}
             <Link to="/terms-and-conditions">Terms and Conditions</Link>.
           </div>
