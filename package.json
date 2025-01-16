@@ -24,7 +24,7 @@
     "date-fns": "^4.1.0",
     "idb-keyval": "^6.2.1",
     "isbot": "^5.1.17",
-    "lucide-react": "^0.471.0",
+    "lucide-react": "0.469.0",
     "react": "^19.0.0",
     "react-day-picker": "8.10.1",
     "react-dom": "^19.0.0",
