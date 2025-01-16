@@ -1,4 +1,10 @@
-import { format, startOfMonth, endOfMonth, addMonths } from "date-fns";
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  addMonths,
+  isSameMonth,
+} from "date-fns";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { get as idbGet, del as idbDel } from "idb-keyval";
 import { Button } from "~/components/ui/button";
@@ -52,8 +58,12 @@ export async function clientLoader() {
     const currentDate = new Date();
 
     return {
-      reports: await readReports(rootHandle, addMonths(startOfMonth(currentDate), -1), endOfMonth(currentDate)),
-      currentMonth: format(currentDate, 'yyyy-MM'),
+      reports: await readReports(
+        rootHandle,
+        addMonths(startOfMonth(currentDate), -1),
+        endOfMonth(currentDate),
+      ),
+      currentMonth: format(currentDate, "yyyy-MM"),
     };
   } catch (e) {
     console.error(e);
@@ -75,14 +85,16 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
 
   switch (intent) {
     case "load-month": {
-      const monthDate = new Date(body.get("month")?.toString() || '');
-      const start = body.get("loadPrevious")?.toString() ? addMonths(startOfMonth(monthDate), -1) : startOfMonth(monthDate);
-      const end = endOfMonth(monthDate)
-      
+      const monthDate = new Date(body.get("month")?.toString() || "");
+      const start = body.get("loadPrevious")?.toString()
+        ? addMonths(startOfMonth(monthDate), -1)
+        : startOfMonth(monthDate);
+      const end = endOfMonth(monthDate);
+
       const monthReports = await readReports(rootHandle, start, end);
-      
+
       return {
-        type: 'month-data',
+        type: "month-data",
         reports: monthReports,
       };
     }
@@ -101,7 +113,7 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
 
       if (!parsedEntryFormData.success) {
         return {
-          type: 'entry-form-error',
+          type: "entry-form-error",
           entryFormIssues: parsedEntryFormData.issues,
         };
       }
@@ -119,7 +131,7 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
       };
 
       if (entryIndex === null || Number.isNaN(entryIndex)) {
-        console.error('Invalid entry index:', entryIndex);
+        console.error("Invalid entry index:", entryIndex);
         return;
       }
 
@@ -135,7 +147,7 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
       }
 
       return {
-        type: 'update-report',
+        type: "update-report",
         updatedReports: {
           [dateString]: updatedReport,
         },
@@ -149,7 +161,7 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
         : null;
 
       if (!dateString || entryIndex === null || Number.isNaN(entryIndex)) {
-        console.error('Invalid delete parameters:', { dateString, entryIndex });
+        console.error("Invalid delete parameters:", { dateString, entryIndex });
         return;
       }
 
@@ -166,7 +178,7 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
       const updatedReport = await readReport(rootHandle, dateString);
 
       return {
-        type: 'update-report',
+        type: "update-report",
         updatedReports: {
           [dateString]: updatedReport || { entries: [] },
         },
@@ -180,7 +192,8 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
 }
 
 export default function Home() {
-  const { reports: initialReports, currentMonth } = useLoaderData<typeof clientLoader>();
+  const { reports: initialReports, currentMonth } =
+    useLoaderData<typeof clientLoader>();
   const actionData = useActionData<typeof clientAction>();
   const navigate = useNavigate();
   const fetcher = useFetcher();
@@ -188,12 +201,14 @@ export default function Home() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedMonthDate, setSelectedMonthDate] = useState<Date>(new Date());
   const [reports, setReports] = useState<Reports>(initialReports || {});
-  const [loadedMonths, setLoadedMonths] = useState<Set<string>>(new Set([currentMonth]));
+  const [loadedMonths, setLoadedMonths] = useState<Set<string>>(
+    new Set([currentMonth]),
+  );
   const [entryIndexToEdit, setEntryIndexToEdit] = useState<number | null>(null);
 
   useEffect(() => {
-    if (actionData?.type === 'update-report' && actionData.updatedReports) {
-      setReports(oldReports => ({
+    if (actionData?.type === "update-report" && actionData.updatedReports) {
+      setReports((oldReports) => ({
         ...oldReports,
         ...actionData.updatedReports,
       }));
@@ -202,7 +217,7 @@ export default function Home() {
 
   useEffect(() => {
     if (fetcher.data?.reports) {
-      setReports(oldReports => ({
+      setReports((oldReports) => ({
         ...oldReports,
         ...fetcher.data.reports,
       }));
@@ -211,20 +226,27 @@ export default function Home() {
 
   // Load month data if not already loaded
   useEffect(() => {
-    const selectedMonth = format(selectedMonthDate, 'yyyy-MM');
-    if (!loadedMonths.has(selectedMonth) && fetcher.state === 'idle') {
+    const selectedMonth = format(selectedMonthDate, "yyyy-MM");
+    if (!loadedMonths.has(selectedMonth) && fetcher.state === "idle") {
       const formData = new FormData();
-      formData.append('intent', 'load-month');
-      formData.append('month', selectedMonth);
-      formData.append('loadPrevious', JSON.stringify(true));
-      fetcher.submit(formData, { method: 'post' });
-      setLoadedMonths(prev => new Set([...prev, selectedMonth]));
+      formData.append("intent", "load-month");
+      formData.append("month", selectedMonth);
+      formData.append("loadPrevious", JSON.stringify(true));
+      fetcher.submit(formData, { method: "post" });
+      setLoadedMonths((prev) => new Set([...prev, selectedMonth]));
     }
   }, [selectedMonthDate, loadedMonths, fetcher]);
 
   const selectedReport: Report = useMemo(() => {
     return reports[format(selectedDate, DATE_FORMAT)] || { entries: [] };
   }, [selectedDate, reports]);
+
+  const handleSelectedDate = (date: Date) => {
+    setSelectedDate(date);
+    if (!isSameMonth(date, selectedMonthDate)) {
+      setSelectedMonthDate(date);
+    }
+  };
 
   return (
     <div className="min-w-[640px]">
@@ -237,7 +259,7 @@ export default function Home() {
             </Button>
             <DateControls
               selectedDate={selectedDate}
-              setSelectedDate={setSelectedDate}
+              setSelectedDate={handleSelectedDate}
             />
           </div>
           <div className="grid auto-rows-min gap-4">
@@ -245,7 +267,7 @@ export default function Home() {
               <HoursCalendar
                 dailyDurations={calculateDailyDurations(reports)}
                 selectedDate={selectedDate}
-                setSelectedDate={setSelectedDate}
+                setSelectedDate={handleSelectedDate}
                 selectedMonth={selectedMonthDate}
                 setSelectedMonth={setSelectedMonthDate}
               />
@@ -348,7 +370,11 @@ export default function Home() {
       </div>
       <EntryForm
         report={selectedReport}
-        issues={actionData?.type === 'entry-form-error' ? actionData.entryFormIssues : undefined}
+        issues={
+          actionData?.type === "entry-form-error"
+            ? actionData.entryFormIssues
+            : undefined
+        }
         entryIndex={entryIndexToEdit}
         selectedDate={selectedDate}
         onClose={() => setEntryIndexToEdit(null)}

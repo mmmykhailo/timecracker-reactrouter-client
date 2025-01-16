@@ -7,8 +7,8 @@ import { cn } from "~/lib/utils";
 import { Calendar } from "./ui/calendar";
 
 type DateControlsProps = {
-  selectedDate: Date | undefined;
-  setSelectedDate: Dispatch<SetStateAction<Date>>;
+  selectedDate: Date;
+  setSelectedDate: (date: Date) => void;
 };
 
 export default function DateControls({
@@ -26,7 +26,7 @@ export default function DateControls({
         disabled={!selectedDate}
         variant="outline"
         size="icon"
-        onClick={() => setSelectedDate((old) => old && addDays(old, -1))}
+        onClick={() => setSelectedDate(addDays(selectedDate, -1))}
       >
         <ChevronLeft />
       </Button>
@@ -64,7 +64,7 @@ export default function DateControls({
         disabled={!selectedDate}
         variant="outline"
         size="icon"
-        onClick={() => setSelectedDate((old) => old && addDays(old, 1))}
+        onClick={() => setSelectedDate(addDays(selectedDate, 1))}
       >
         <ChevronRight />
       </Button>
