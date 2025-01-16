@@ -1,4 +1,4 @@
-import { getISOWeek, parse } from "date-fns";
+import { areIntervalsOverlapping, endOfWeek, getISOWeek, isWithinInterval, parse, parseISO, startOfWeek } from "date-fns";
 import { safeParse, type RegexIssue, type StringIssue } from "valibot";
 import { TimeSchema, type TimeIssue } from "./schema";
 import { calculateDuration, parseTimeIntoMinutes } from "./time-strings";
@@ -231,7 +231,7 @@ async function readWeekDir(
       const isoWeek = getISOWeek(fileDate);
 
       if (isoWeek !== weekDirNumber) {
-        console.log(fileDateString, fileDate, isoWeek, weekDirNumber);
+        console.log("isoWeek !== weekDirNumber", fileDateString, fileDate, isoWeek, weekDirNumber);
         continue;
       }
       const file = await fileHandle.getFile();
@@ -250,27 +250,67 @@ async function readWeekDir(
 async function readYearDir(
   yearDirHandle: FileSystemDirectoryHandle,
   rawReports: Array<RawReport>,
+  startDate?: Date,
+  endDate?: Date
 ) {
-  let supplementedRawReports = rawReports;
-
-  for await (const yearChild of yearDirHandle.values()) {
-    if (yearChild.kind === "directory") {
-      const dirNameMatch = yearChild.name.match(WEEK_DIR_NAME_REGEX);
-      if (!dirNameMatch) {
-        continue;
-      }
-
-      supplementedRawReports = await readWeekDir(
-        yearChild,
-        supplementedRawReports,
-      );
+  // Pre-calculate year number once
+  const yearNumber = startDate || endDate ? Number.parseInt(yearDirHandle.name) : null;
+  
+  const entries = [];
+  for await (const entry of yearDirHandle.values()) {
+    if (entry.kind === "directory") {
+      entries.push(entry);
     }
   }
-  return supplementedRawReports;
+
+  const processingTasks = entries
+    .map(yearChild => {
+      const dirNameMatch = yearChild.name.match(WEEK_DIR_NAME_REGEX);
+      if (!dirNameMatch) return null;
+
+      if (startDate && endDate) {
+        const weekNumber = Number.parseInt(yearChild.name.split(" ")[1], 10);
+        
+        
+          const paddedWeekStr = weekNumber.toString().padStart(2, '0');
+          const weekStart = parseISO(`${yearNumber}-W${paddedWeekStr}-1`);
+          const weekEnd = endOfWeek(weekStart)
+         
+        // I don't care about performance, it is fast anyway
+        if (
+          !areIntervalsOverlapping({
+            start: weekStart,
+            end: weekEnd
+          }, {
+            start: startDate,
+            end: endDate
+          })) {
+          return null;
+        }
+      }
+
+      return yearChild;
+    })
+    .filter((dir): dir is FileSystemDirectoryHandle => dir !== null)
+    .map(weekDir => readWeekDir(weekDir, rawReports));
+
+  const results = await Promise.all(processingTasks);
+  
+  return results.reduce((merged, current) => {
+    merged.push(...current);
+    return merged;
+  }, rawReports);
 }
 
-export async function readReports(rootHandle: FileSystemDirectoryHandle) {
+export async function readReports(
+  rootHandle: FileSystemDirectoryHandle,
+  startDate?: Date,
+  endDate?: Date
+) {
   let rawReports: Array<RawReport> = [];
+  
+  const adjustedStartDate = startDate ? startOfWeek(startDate) : undefined;
+  const adjustedEndDate = endDate ? endOfWeek(endDate) : undefined;
 
   for await (const rootChild of rootHandle.values()) {
     if (rootChild.kind === "directory") {
@@ -279,15 +319,18 @@ export async function readReports(rootHandle: FileSystemDirectoryHandle) {
         continue;
       }
 
-      rawReports = await readYearDir(rootChild, rawReports);
+      rawReports = await readYearDir(
+        rootChild,
+        rawReports,
+        adjustedStartDate,
+        adjustedEndDate
+      );
     }
   }
 
   return rawReports.reduce((prev, curr) => {
     const report = parseReport(curr.content);
-
     prev[curr.name] = report;
-
     return prev;
   }, {} as Reports);
 }

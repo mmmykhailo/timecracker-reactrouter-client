@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import {
   format,
   startOfWeek,
@@ -23,8 +23,10 @@ import { formatDuration } from "~/lib/time-strings";
 type HoursCalendarProps = {
   isCompact?: boolean;
   dailyDurations: DailyDurations;
-  selectedDate: Date | undefined;
+  selectedDate: Date;
   setSelectedDate: (date: Date) => void;
+  selectedMonth: Date;
+  setSelectedMonth: Dispatch<SetStateAction<Date>>;
 };
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -61,9 +63,9 @@ const HoursCalendar = ({
   dailyDurations,
   selectedDate,
   setSelectedDate,
+  selectedMonth,
+  setSelectedMonth
 }: HoursCalendarProps) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-
   const getDaysInMonth = (date: Date) => {
     const startDate = startOfMonth(date);
     const endDate = endOfMonth(date);
@@ -77,7 +79,7 @@ const HoursCalendar = ({
   };
 
   const renderDayCell = (cellDate: Date) => {
-    const formattedMonth = format(currentMonth, "yyyyMM");
+    const formattedMonth = format(selectedMonth, "yyyyMM");
     const formattedDate = format(cellDate, DATE_FORMAT);
     const durationItem = dailyDurations[formattedDate] || {
       duration: 0,
@@ -85,7 +87,7 @@ const HoursCalendar = ({
 
     const isToday = isSameDay(cellDate, new Date());
     const isSelected = !!selectedDate && isSameDay(cellDate, selectedDate);
-    const isSelectedMonth = isSameMonth(currentMonth, cellDate);
+    const isSelectedMonth = isSameMonth(selectedMonth, cellDate);
 
     return (
       <button
@@ -146,7 +148,7 @@ const HoursCalendar = ({
   };
 
   const renderCalendar = () => {
-    const days = getDaysInMonth(currentMonth);
+    const days = getDaysInMonth(selectedMonth);
     const weeks = [];
     let weekStart = startOfWeek(days[0]);
     while (weekStart <= days[days.length - 1]) {
@@ -158,16 +160,16 @@ const HoursCalendar = ({
   };
 
   const handlePrevMonth = () => {
-    setCurrentMonth((prev) => addDays(startOfMonth(prev), -1));
+    setSelectedMonth((prev) => addDays(startOfMonth(prev), -1));
   };
 
   const handleNextMonth = () => {
-    setCurrentMonth((prev) => addDays(endOfMonth(prev), 1));
+    setSelectedMonth((prev) => addDays(endOfMonth(prev), 1));
   };
 
   const monthlyTotalDuration = useMemo(
-    () => calculateMonthlyTotal(dailyDurations, currentMonth),
-    [dailyDurations, currentMonth],
+    () => calculateMonthlyTotal(dailyDurations, selectedMonth),
+    [dailyDurations, selectedMonth],
   );
 
   return (
@@ -175,7 +177,7 @@ const HoursCalendar = ({
       <div className="flex justify-between">
         <div className="flex flex-col space-y-1.5 mb-6">
           <div className="font-semibold leading-none tracking-tight">
-            {format(currentMonth, "MMMM yyyy")}
+            {format(selectedMonth, "MMMM yyyy")}
           </div>
           <div className="text-sm text-muted-foreground">
             You tracked {formatDuration(monthlyTotalDuration)} this month.
