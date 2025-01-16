@@ -282,62 +282,72 @@ export default function Home() {
           </div>
         </div>
         {!selectedReport.issues && (
-          <div className="col-span-4 flex flex-col gap-3">
-            {selectedReport.entries?.length ? (
-              selectedReport.entries.map((reportEntry, i) => {
-                const prevReportEntry =
-                  (i > 0 && selectedReport.entries?.[i - 1]) || null;
-                const breakDuration =
-                  (prevReportEntry &&
-                    calculateDuration(
-                      prevReportEntry.end,
-                      reportEntry.start,
-                    )) ||
-                  0;
+          <div className="col-span-4 flex flex-col gap-4">
+            <div>
+              {selectedReport.entries?.length ? (
+                selectedReport.entries.map((reportEntry, i) => {
+                  const prevReportEntry =
+                    (i > 0 && selectedReport.entries?.[i - 1]) || null;
 
-                return (
-                  <Fragment
-                    key={`${reportEntry.start}-${reportEntry.end}-${i}`}
-                  >
-                    {!!breakDuration && (
-                      <div className="flex items-center gap-4">
-                        <Separator
-                          className={cn("flex-1", {
-                            "bg-destructive": breakDuration < 0,
-                          })}
-                        />
-                        <span
-                          className={cn({
-                            "text-muted-foreground": breakDuration > 0,
-                            "text-destructive": breakDuration < 0,
-                          })}
-                        >
-                          {formatDuration(breakDuration)} break
-                        </span>
-                        <Separator
-                          className={cn("flex-1", {
-                            "bg-destructive": breakDuration < 0,
-                          })}
-                        />
-                      </div>
-                    )}
-                    <ReportEntryCard
-                      isInvalid={selectedReport.hasNegativeDuration}
-                      entryIndex={i}
-                      entry={reportEntry}
-                      selectedDate={selectedDate}
-                      onEditClick={() => {
-                        setEntryIndexToEdit(i);
-                      }}
-                    />
-                  </Fragment>
-                );
-              })
-            ) : (
-              <div className="rounded-lg border p-3 text-muted-foreground">
-                No entries yet
-              </div>
-            )}
+                  const breakDuration =
+                    (prevReportEntry &&
+                      calculateDuration(
+                        prevReportEntry.end,
+                        reportEntry.start,
+                      )) ||
+                    0;
+
+                  return (
+                    <Fragment
+                      key={`${reportEntry.start}-${reportEntry.end}-${i}`}
+                    >
+                      {breakDuration ? (
+                        <div className="flex items-center gap-4 my-1">
+                          <Separator
+                            className={cn("flex-1", {
+                              "bg-destructive": breakDuration < 0,
+                            })}
+                          />
+                          <span
+                            className={cn({
+                              "text-muted-foreground": breakDuration > 0,
+                              "text-destructive": breakDuration < 0,
+                            })}
+                          >
+                            {formatDuration(breakDuration)} break
+                          </span>
+                          <Separator
+                            className={cn("flex-1", {
+                              "bg-destructive": breakDuration < 0,
+                            })}
+                          />
+                        </div>
+                      ) : (
+                        <div />
+                      )}
+                      <ReportEntryCard
+                        isInvalid={selectedReport.hasNegativeDuration}
+                        entryIndex={i}
+                        entry={reportEntry}
+                        selectedDate={selectedDate}
+                        className={cn("rounded-none last:rounded-b-lg", {
+                          "border-t-0 rounded-t-none":
+                            !breakDuration && i !== 0,
+                          "rounded-t-lg": i === 0,
+                        })}
+                        onEditClick={() => {
+                          setEntryIndexToEdit(i);
+                        }}
+                      />
+                    </Fragment>
+                  );
+                })
+              ) : (
+                <div className="rounded-lg border p-3 text-muted-foreground">
+                  No entries yet
+                </div>
+              )}
+            </div>
 
             <div className="grid gap-2">
               <Button

@@ -11,6 +11,7 @@ type ReportEntryCardProps = {
   entry: ReportEntry;
   entryIndex: number;
   selectedDate: Date;
+  className?: string;
   onEditClick: () => void;
 };
 
@@ -19,6 +20,7 @@ export default function ReportEntryCard({
   entry: { project, activity, description, start, end, duration },
   entryIndex,
   selectedDate,
+  className,
   onEditClick,
 }: ReportEntryCardProps) {
   return (
@@ -28,6 +30,7 @@ export default function ReportEntryCard({
         {
           "border-destructive": isInvalid,
         },
+        className,
       )}
     >
       <div className="flex-shrink min-w-0">
