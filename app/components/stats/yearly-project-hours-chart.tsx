@@ -9,7 +9,6 @@ import {
 import {
   ChartContainer,
   ChartTooltip,
-  type ChartConfig,
 } from "~/components/ui/chart";
 import { formatDuration } from "~/lib/time-strings";
 import {

@@ -1,4 +1,4 @@
-import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
+import { useMemo, type Dispatch, type SetStateAction } from "react";
 import {
   format,
   startOfWeek,
@@ -64,7 +64,7 @@ const HoursCalendar = ({
   selectedDate,
   setSelectedDate,
   selectedMonth,
-  setSelectedMonth
+  setSelectedMonth,
 }: HoursCalendarProps) => {
   const getDaysInMonth = (date: Date) => {
     const startDate = startOfMonth(date);

@@ -1,4 +1,4 @@
-import { useTheme, type Theme } from "~/providers/theme-provider";
+import { useTheme, } from "~/providers/theme-provider";
 import { Button } from "./ui/button";
 import { Moon, Sun } from "lucide-react";
 

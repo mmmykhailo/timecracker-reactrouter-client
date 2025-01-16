@@ -1,8 +1,15 @@
-import { areIntervalsOverlapping, endOfWeek, getISOWeek, isWithinInterval, parse, parseISO, startOfWeek } from "date-fns";
+import {
+  areIntervalsOverlapping,
+  endOfWeek,
+  getISOWeek,
+  parse,
+  parseISO,
+  startOfWeek,
+} from "date-fns";
 import { safeParse, type RegexIssue, type StringIssue } from "valibot";
 import { TimeSchema, type TimeIssue } from "./schema";
 import { calculateDuration, parseTimeIntoMinutes } from "./time-strings";
-import { getWeekEndDateString, getWeekStartDateString } from "./date-strings";
+import { getWeekStartDateString } from "./date-strings";
 
 export const TIMEREPORT_FILENAME_PREFIX = "timereport - ";
 export const WEEK_DIR_NAME_REGEX = /^week (\d{2})$/i;
@@ -231,7 +238,13 @@ async function readWeekDir(
       const isoWeek = getISOWeek(fileDate);
 
       if (isoWeek !== weekDirNumber) {
-        console.log("isoWeek !== weekDirNumber", fileDateString, fileDate, isoWeek, weekDirNumber);
+        console.log(
+          "isoWeek !== weekDirNumber",
+          fileDateString,
+          fileDate,
+          isoWeek,
+          weekDirNumber,
+        );
         continue;
       }
       const file = await fileHandle.getFile();
@@ -251,11 +264,12 @@ async function readYearDir(
   yearDirHandle: FileSystemDirectoryHandle,
   rawReports: Array<RawReport>,
   startDate?: Date,
-  endDate?: Date
+  endDate?: Date,
 ) {
   // Pre-calculate year number once
-  const yearNumber = startDate || endDate ? Number.parseInt(yearDirHandle.name) : null;
-  
+  const yearNumber =
+    startDate || endDate ? Number.parseInt(yearDirHandle.name) : null;
+
   const entries = [];
   for await (const entry of yearDirHandle.values()) {
     if (entry.kind === "directory") {
@@ -264,27 +278,30 @@ async function readYearDir(
   }
 
   const processingTasks = entries
-    .map(yearChild => {
+    .map((yearChild) => {
       const dirNameMatch = yearChild.name.match(WEEK_DIR_NAME_REGEX);
       if (!dirNameMatch) return null;
 
       if (startDate && endDate) {
         const weekNumber = Number.parseInt(yearChild.name.split(" ")[1], 10);
-        
-        
-          const paddedWeekStr = weekNumber.toString().padStart(2, '0');
-          const weekStart = parseISO(`${yearNumber}-W${paddedWeekStr}-1`);
-          const weekEnd = endOfWeek(weekStart)
-         
+
+        const paddedWeekStr = weekNumber.toString().padStart(2, "0");
+        const weekStart = parseISO(`${yearNumber}-W${paddedWeekStr}-1`);
+        const weekEnd = endOfWeek(weekStart);
+
         // I don't care about performance, it is fast anyway
         if (
-          !areIntervalsOverlapping({
-            start: weekStart,
-            end: weekEnd
-          }, {
-            start: startDate,
-            end: endDate
-          })) {
+          !areIntervalsOverlapping(
+            {
+              start: weekStart,
+              end: weekEnd,
+            },
+            {
+              start: startDate,
+              end: endDate,
+            },
+          )
+        ) {
           return null;
         }
       }
@@ -292,10 +309,10 @@ async function readYearDir(
       return yearChild;
     })
     .filter((dir): dir is FileSystemDirectoryHandle => dir !== null)
-    .map(weekDir => readWeekDir(weekDir, rawReports));
+    .map((weekDir) => readWeekDir(weekDir, rawReports));
 
   const results = await Promise.all(processingTasks);
-  
+
   return results.reduce((merged, current) => {
     merged.push(...current);
     return merged;
@@ -305,10 +322,10 @@ async function readYearDir(
 export async function readReports(
   rootHandle: FileSystemDirectoryHandle,
   startDate?: Date,
-  endDate?: Date
+  endDate?: Date,
 ) {
   let rawReports: Array<RawReport> = [];
-  
+
   const adjustedStartDate = startDate ? startOfWeek(startDate) : undefined;
   const adjustedEndDate = endDate ? endOfWeek(endDate) : undefined;
 
@@ -323,7 +340,7 @@ export async function readReports(
         rootChild,
         rawReports,
         adjustedStartDate,
-        adjustedEndDate
+        adjustedEndDate,
       );
     }
   }
