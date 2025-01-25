@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router";
+import { Link, redirect, useNavigate } from "react-router";
 import { set as idbSet } from "idb-keyval";
 import { Button } from "~/components/ui/button";
 
@@ -9,9 +9,7 @@ export function meta() {
   ];
 }
 
-export default function WelcomePage() {
-  const navigate = useNavigate();
-
+export async function clientLoader() {
   const isFilesystemApiSupported = "showDirectoryPicker" in window;
 
   // top level window means not in iframe
@@ -24,8 +22,12 @@ export default function WelcomePage() {
   };
 
   if (!isFilesystemApiSupported && checkIfInTopLevelWindow()) {
-    return navigate("/not-supported");
+    return redirect('/not-supported');
   }
+}
+
+export default function WelcomePage() {
+  const navigate = useNavigate();
 
   const handleOpenFolder = async () => {
     const rootHandle: FileSystemDirectoryHandle =
