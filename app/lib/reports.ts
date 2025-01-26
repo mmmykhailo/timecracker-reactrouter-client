@@ -266,9 +266,7 @@ async function readYearDir(
   startDate?: Date,
   endDate?: Date,
 ) {
-  // Pre-calculate year number once
-  const yearNumber =
-    startDate || endDate ? Number.parseInt(yearDirHandle.name) : null;
+  const yearNumber = Number.parseInt(yearDirHandle.name);
 
   const entries = [];
   for await (const entry of yearDirHandle.values()) {
@@ -311,12 +309,9 @@ async function readYearDir(
     .filter((dir): dir is FileSystemDirectoryHandle => dir !== null)
     .map((weekDir) => readWeekDir(weekDir, rawReports));
 
-  const results = await Promise.all(processingTasks);
+  await Promise.all(processingTasks);
 
-  return results.reduce((merged, current) => {
-    merged.push(...current);
-    return merged;
-  }, rawReports);
+  return rawReports;
 }
 
 export async function readReports(
