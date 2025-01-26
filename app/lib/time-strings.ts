@@ -3,6 +3,13 @@ export function parseTimeIntoMinutes(timeStr: string): number {
   return hours * 60 + minutes;
 }
 
+export function formatTime(hours: number, minutes: number) {
+  return [
+    hours.toString().padStart(2, "0"),
+    minutes.toString().padStart(2, "0")
+  ].join(":")
+}
+
 export function calculateDuration(
   startTimeStr: string,
   endTimeStr: string,

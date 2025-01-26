@@ -12,11 +12,12 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { Form, useNavigation } from "react-router";
-import { format } from "date-fns";
-import { useEffect } from "react";
+import { format, isToday } from "date-fns";
+import { useEffect, useMemo } from "react";
 import { findIssueByPath, type EntryFormIssue } from "~/lib/schema";
 import { cn } from "~/lib/utils";
 import { useTimeInput } from "~/hooks/use-time-input";
+import { formatTime } from "~/lib/time-strings";
 
 type EntryFormProps = {
   report: Report | null;
@@ -36,6 +37,28 @@ const EntryForm = ({
   const navigation = useNavigation();
   const { onChange: onTimeChange, onBlur: onTimeBlur } = useTimeInput();
   const entry = (entryIndex !== null && report?.entries?.[entryIndex]) || null;
+
+  const [defaultStart, defaultEnd] = useMemo(() => {
+    if (!isToday(selectedDate)) {
+      return ["", ""];
+    }
+
+    const prevEntry =
+      (entryIndex !== null && report?.entries?.[entryIndex - 1]) || null;
+
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+
+    const floorMinutes = Math.floor(minutes / 15) * 15;
+    const ceilHours = Math.ceil(minutes / 15 > 3 ? hours + 1 : hours);
+    const ceilMinutes = Math.ceil(minutes / 15 > 3 ? 0 : minutes / 15) * 15;
+
+    return [
+      prevEntry?.end || formatTime(hours, floorMinutes),
+      formatTime(ceilHours, ceilMinutes),
+    ];
+  }, [selectedDate, entryIndex, report]);
 
   useEffect(() => {
     if (navigation.state === "submitting") {
@@ -82,7 +105,7 @@ const EntryForm = ({
                 className={cn({
                   "border-destructive": !!findIssueByPath(issues, "start"),
                 })}
-                defaultValue={entry?.start || ""}
+                defaultValue={entry?.start || defaultStart}
                 autoComplete="off"
                 placeholder="10:00"
                 onChange={onTimeChange}
@@ -99,7 +122,7 @@ const EntryForm = ({
                 className={cn({
                   "border-destructive": !!findIssueByPath(issues, "end"),
                 })}
-                defaultValue={entry?.end || ""}
+                defaultValue={entry?.end || defaultEnd}
                 autoComplete="off"
                 placeholder="10:15"
                 onChange={onTimeChange}
