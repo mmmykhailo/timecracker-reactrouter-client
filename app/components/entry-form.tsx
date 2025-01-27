@@ -13,7 +13,7 @@ import {
 } from "./ui/dialog";
 import { Form, useNavigation } from "react-router";
 import { format, isToday } from "date-fns";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, type KeyboardEvent } from "react";
 import { findIssueByPath, type EntryFormIssue } from "~/lib/schema";
 import { cn } from "~/lib/utils";
 import { useTimeInput } from "~/hooks/use-time-input";
@@ -36,6 +36,7 @@ const EntryForm = ({
 }: EntryFormProps) => {
   const navigation = useNavigation();
   const { onChange: onTimeChange, onBlur: onTimeBlur } = useTimeInput();
+  const submitButtonRef = useRef<HTMLButtonElement>(null);
   const entry = (entryIndex !== null && report?.entries?.[entryIndex]) || null;
 
   const [defaultStart, defaultEnd] = useMemo(() => {
@@ -65,6 +66,15 @@ const EntryForm = ({
       onClose();
     }
   }, [navigation.state, onClose]);
+
+  const handleDescriptionEnterPress = (
+    e: KeyboardEvent<HTMLTextAreaElement>,
+  ): void => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      submitButtonRef.current?.click();
+    }
+  };
 
   return (
     <Dialog
@@ -172,6 +182,7 @@ const EntryForm = ({
               className={cn("h-24", {
                 "border-destructive": !!findIssueByPath(issues, "description"),
               })}
+              onKeyDown={handleDescriptionEnterPress}
               defaultValue={entry?.description || ""}
               autoComplete="off"
               maxLength={256}
@@ -180,7 +191,9 @@ const EntryForm = ({
           </div>
 
           <DialogFooter>
-            <Button type="submit">Save changes</Button>
+            <Button ref={submitButtonRef} type="submit">
+              Save changes
+            </Button>
           </DialogFooter>
         </Form>
       </DialogContent>
