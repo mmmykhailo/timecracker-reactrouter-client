@@ -33,23 +33,23 @@ export default function ReportEntryCard({
         className,
       )}
     >
-      <div className="flex-shrink min-w-0">
-        <div className="font-semibold line-clamp-1 break-words">{project}</div>
-        <div className="font-semibold text-sm line-clamp-1 break-words">
+      <div className="min-w-0 shrink">
+        <div className="line-clamp-1 break-words font-semibold">{project}</div>
+        <div className="line-clamp-1 break-words font-semibold text-sm">
           {activity}
         </div>
-        <div className="text-muted-foreground text-sm break-words">
+        <div className="break-words text-muted-foreground text-sm">
           {description}
         </div>
       </div>
-      <div className="flex flex-col items-end justify-between gap-1 flex-shrink-0">
+      <div className="flex shrink-0 flex-col items-end justify-between gap-1">
         <div className="text-muted-foreground text-sm">
           {start} - {end}
         </div>
         <div className="text-muted-foreground text-sm">
           {formatDuration(duration)}
         </div>
-        <div className="flex gap-2 mt-1">
+        <div className="mt-1 flex gap-2">
           <Button variant="outline" size="icon" onClick={onEditClick}>
             <Edit size={12} />
           </Button>

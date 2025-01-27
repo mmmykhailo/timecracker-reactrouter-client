@@ -44,14 +44,14 @@ export default function WelcomePage() {
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-6">
             <div className="flex flex-col items-center gap-4">
-              <img className="w-12 h-12" src="/logo.svg" alt="Timecracker" />
-              <h1 className="text-xl font-bold">Welcome to Timecracker</h1>
+              <img className="h-12 w-12" src="/logo.svg" alt="Timecracker" />
+              <h1 className="font-bold text-xl">Welcome to Timecracker</h1>
             </div>
             <Button type="submit" className="w-full" onClick={handleOpenFolder}>
               Select folder
             </Button>
           </div>
-          <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary  ">
+          <div className="text-balance text-center text-muted-foreground text-xs [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary ">
             If don't have a timetracker folder yet, I strongly advise you to
             create a new one, do not select a folder that contains anything
             non-related.

@@ -6,15 +6,15 @@ export function AppHeader() {
   return (
     <div className="border-b">
       <div className="flex items-center justify-between px-4 py-6">
-        <nav className="flex items-center gap-4 lg:gap-6 mx-6 flex-wrap">
+        <nav className="mx-6 flex flex-wrap items-center gap-4 lg:gap-6">
           <Link
-            className="text-sm font-medium transition-colors hover:text-primary"
+            className="font-medium text-sm transition-colors hover:text-primary"
             to="/"
           >
             Overview
           </Link>
           <Link
-            className="text-sm font-medium transition-colors hover:text-primary"
+            className="font-medium text-sm transition-colors hover:text-primary"
             to="/stats"
           >
             Stats

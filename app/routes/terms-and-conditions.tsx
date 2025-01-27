@@ -10,8 +10,8 @@ export function meta() {
 export default function TermsAndConditionsPage() {
   return (
     <div className="py-6 md:py-12 lg:py-16">
-      <div className="container p-4 md:p-6 mx-auto border rounded-xl">
-        <div className="prose prose-gray max-w-none dark:prose-invert">
+      <div className="container mx-auto rounded-xl border p-4 md:p-6">
+        <div className="prose prose-gray dark:prose-invert max-w-none">
           <h1>Terms and Conditions</h1>
           Last Updated: January 9, 2025
           <hr />

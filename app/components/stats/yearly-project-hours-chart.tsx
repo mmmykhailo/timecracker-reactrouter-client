@@ -41,7 +41,7 @@ const CustomTooltip = ({
 }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-background rounded border p-2 gap-2 flex flex-col">
+      <div className="flex flex-col gap-2 rounded border bg-background p-2">
         <div className="font-medium">{label}</div>
         <div className="flex flex-col-reverse">
           {payload.map(({ name, value }) => {
@@ -49,10 +49,10 @@ const CustomTooltip = ({
               return;
             }
             return (
-              <div key={name} className="flex justify-between w-full gap-3">
+              <div key={name} className="flex w-full justify-between gap-3">
                 <div className="flex items-center gap-1">
                   <div
-                    className="h-2.5 w-2.5 shrink-0 rounded-[2px] bg-[--color-bg]"
+                    className="h-2.5 w-2.5 shrink-0 rounded-[2px] bg-(--color-bg)"
                     style={
                       {
                         "--color-bg":
@@ -119,13 +119,13 @@ export function YearlyProjectHoursChart({
   }, [reports, selectedYear]);
 
   return (
-    <div className="flex flex-col gap-4 col-span-6 rounded-xl border p-4">
+    <div className="col-span-6 flex flex-col gap-4 rounded-xl border p-4">
       <div className="flex justify-between">
         <div className="flex flex-col gap-1.5">
           <div className="font-semibold leading-none tracking-tight">
             Yearly project hours
           </div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-sm">
             Data for the year {yearNumberStr}
           </div>
         </div>

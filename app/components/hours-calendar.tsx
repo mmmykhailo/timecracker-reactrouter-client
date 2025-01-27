@@ -95,10 +95,10 @@ const HoursCalendar = ({
         key={`${formattedDate}-${formattedMonth}`}
         type="button"
         className={cn(
-          "p-2 flex flex-wrap gap-2 hover:bg-black/30 transition-colors cursor-pointer",
-          "border-b focus-visible:z-10 outline-offset-2",
+          "flex cursor-pointer flex-wrap gap-2 p-2 transition-colors hover:bg-black/30",
+          "border-b outline-offset-2 focus-visible:z-10",
           {
-            "flex-col min-h-20 justify-between": !isCompact,
+            "min-h-20 flex-col justify-between": !isCompact,
             "justify-center": isCompact,
             "bg-black/15": isToday,
             "text-foreground": !isSelected && isSelectedMonth,
@@ -109,10 +109,10 @@ const HoursCalendar = ({
           },
         )}
       >
-        <div className="text-sm font-bold">{format(cellDate, "d")}</div>
+        <div className="font-bold text-sm">{format(cellDate, "d")}</div>
         <div className="flex justify-end">
           <Badge
-            className={cn("pointer-events-none opacity-90 whitespace-nowrap", {
+            className={cn("pointer-events-none whitespace-nowrap opacity-90", {
               "opacity-50": !isSelectedMonth,
             })}
             variant={getHoursBadgeVariant(durationItem, isSelected)}
@@ -173,13 +173,13 @@ const HoursCalendar = ({
   );
 
   return (
-    <div className="p-4 mx-auto">
+    <div className="mx-auto p-4">
       <div className="flex justify-between">
-        <div className="flex flex-col space-y-1.5 mb-6">
+        <div className="mb-6 flex flex-col space-y-1.5">
           <div className="font-semibold leading-none tracking-tight">
             {format(selectedMonth, "MMMM yyyy")}
           </div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-sm">
             You tracked {formatDuration(monthlyTotalDuration)} this month.
           </div>
         </div>
@@ -192,14 +192,14 @@ const HoursCalendar = ({
           </Button>
         </div>
       </div>
-      <div className="border rounded-xl">
+      <div className="rounded-xl border">
         <div className="grid grid-cols-7">
           {WEEKDAYS.map((day) => (
             <div
               key={day}
-              className={cn("font-semibold text-center border-b", {
+              className={cn("border-b text-center font-semibold", {
                 "py-1": !isCompact,
-                "text-sm py-0.5": isCompact,
+                "py-0.5 text-sm": isCompact,
               })}
             >
               {day}

@@ -40,14 +40,14 @@ export default function Home() {
       <AppHeader />
       <Suspense
         fallback={
-          <div className="grid place-items-center min-h-[50svh]">
-            <LoaderCircle className="w-8 h-8 animate-spin" />
+          <div className="grid min-h-[50svh] place-items-center">
+            <LoaderCircle className="h-8 w-8 animate-spin" />
           </div>
         }
       >
         <Await resolve={loaderReports}>
           {(reports) => (
-            <div className="flex flex-col lg:grid lg:grid-cols-12 flex-1 gap-4 p-4 mt-8">
+            <div className="mt-8 flex flex-1 flex-col gap-4 p-4 lg:grid lg:grid-cols-12">
               <YearlyProjectHoursChart reports={reports} />
             </div>
           )}

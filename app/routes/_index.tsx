@@ -258,9 +258,9 @@ export default function Home() {
   return (
     <div className="min-w-[640px]">
       <AppHeader />
-      <div className="flex flex-col lg:grid lg:grid-cols-12 flex-1 gap-4 p-4 mt-8">
-        <div className="flex flex-col gap-4 col-span-8">
-          <div className="flex justify-between flex-wrap gap-2">
+      <div className="mt-8 flex flex-1 flex-col gap-4 p-4 lg:grid lg:grid-cols-12">
+        <div className="col-span-8 flex flex-col gap-4">
+          <div className="flex flex-wrap justify-between gap-2">
             <Button size="icon" variant="outline" onClick={() => navigate(0)}>
               <RotateCw />
             </Button>
@@ -302,7 +302,7 @@ export default function Home() {
                       key={`${reportEntry.start}-${reportEntry.end}-${i}`}
                     >
                       {breakDuration ? (
-                        <div className="flex items-center gap-4 my-1">
+                        <div className="my-1 flex items-center gap-4">
                           <Separator
                             className={cn("flex-1", {
                               "bg-destructive": breakDuration < 0,
@@ -331,7 +331,7 @@ export default function Home() {
                         entry={reportEntry}
                         selectedDate={selectedDate}
                         className={cn("rounded-none last:rounded-b-lg", {
-                          "border-t-0 rounded-t-none":
+                          "rounded-t-none border-t-0":
                             !breakDuration && i !== 0,
                           "rounded-t-lg": i === 0,
                         })}
@@ -356,7 +356,7 @@ export default function Home() {
               >
                 Add new entry
               </Button>
-              <div className="text-center text-sm text-muted-foreground">
+              <div className="text-center text-muted-foreground text-sm">
                 or press Ctrl + Space
               </div>
             </div>
@@ -374,7 +374,7 @@ export default function Home() {
                   <p>
                     <Badge
                       variant="destructive"
-                      className="max-w-full line-clamp-1 break-words inline-flex"
+                      className="line-clamp-1 inline-flex max-w-full break-words"
                     >
                       {issue.input}
                     </Badge>
