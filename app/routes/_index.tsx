@@ -33,7 +33,7 @@ import {
   type ClientActionFunctionArgs,
 } from "react-router";
 import { RotateCw } from "lucide-react";
-import { getDotPath, safeParse } from "valibot";
+import { flatten, getDotPath, safeParse } from "valibot";
 import { EntryFormSchema } from "~/lib/schema";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
@@ -101,8 +101,10 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
     }
     case "edit-entry": {
       const entryFormData = {
-        start: body.get("start")?.toString(),
-        end: body.get("end")?.toString(),
+        time: {
+          start: body.get("start")?.toString(),
+          end: body.get("end")?.toString(),
+        },
         project: body.get("project")?.toString(),
         activity: body.get("activity")?.toString(),
         description: body.get("description")?.toString(),
@@ -115,7 +117,7 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
       if (!parsedEntryFormData.success) {
         return {
           type: "entry-form-error",
-          entryFormIssues: parsedEntryFormData.issues,
+          entryFormErrors: flatten(parsedEntryFormData.issues),
         };
       }
 
@@ -123,8 +125,10 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
       const entryIndex = parsedEntryFormData.output.entryIndex;
 
       const entry: ReportEntry = {
-        start: parsedEntryFormData.output.start,
-        end: parsedEntryFormData.output.end,
+        time: {
+          start: parsedEntryFormData.output.time.start,
+          end: parsedEntryFormData.output.time.end,
+        },
         duration: 0,
         project: parsedEntryFormData.output.project,
         activity: parsedEntryFormData.output.activity || null,
@@ -209,6 +213,7 @@ export default function Home() {
 
   useEffect(() => {
     if (actionData?.type === "update-report" && actionData.updatedReports) {
+      setEntryIndexToEdit(null);
       setReports((oldReports) => ({
         ...oldReports,
         ...actionData.updatedReports,
@@ -292,14 +297,14 @@ export default function Home() {
                   const breakDuration =
                     (prevReportEntry &&
                       calculateDuration(
-                        prevReportEntry.end,
-                        reportEntry.start,
+                        prevReportEntry.time.end,
+                        reportEntry.time.start,
                       )) ||
                     0;
 
                   return (
                     <Fragment
-                      key={`${reportEntry.start}-${reportEntry.end}-${i}`}
+                      key={`${reportEntry.time.start}-${reportEntry.time.end}-${i}`}
                     >
                       {breakDuration ? (
                         <div className="my-1 flex items-center gap-4">
@@ -390,11 +395,6 @@ export default function Home() {
       </div>
       <EntryForm
         report={selectedReport}
-        issues={
-          actionData?.type === "entry-form-error"
-            ? actionData.entryFormIssues
-            : undefined
-        }
         entryIndex={entryIndexToEdit}
         selectedDate={selectedDate}
         onClose={() => setEntryIndexToEdit(null)}

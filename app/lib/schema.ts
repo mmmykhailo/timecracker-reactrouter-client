@@ -10,10 +10,9 @@ import {
   type InferIssue,
   getDotPath,
   type BaseIssue,
-  check,
-  forward,
   trim,
   maxLength,
+  check,
 } from "valibot";
 import { calculateDuration } from "./time-strings";
 
@@ -34,8 +33,16 @@ export const DateSchema = pipe(
 
 export const EntryFormSchema = pipe(
   object({
-    start: TimeSchema,
-    end: TimeSchema,
+    time: pipe(
+      object({
+        start: TimeSchema,
+        end: TimeSchema,
+      }),
+      check(
+        ({ start, end }) => calculateDuration(start, end) > 0,
+        "Negative time detected",
+      ),
+    ),
     project: pipe(string(), trim(), minLength(1), maxLength(32)),
     activity: optional(pipe(string(), trim(), maxLength(32))),
     description: pipe(string(), trim(), minLength(1), maxLength(256)),
@@ -47,13 +54,6 @@ export const EntryFormSchema = pipe(
       number(),
     ),
   }),
-  forward(
-    check(
-      ({ start, end }) => calculateDuration(start, end) > 0,
-      "Negative time detected",
-    ),
-    ["end"],
-  ),
 );
 
 export type EntryFormIssue = InferIssue<typeof EntryFormSchema>;

@@ -22,8 +22,10 @@ export type RawReport = {
 };
 
 export type ReportEntry = {
-  start: string;
-  end: string;
+  time: {
+    start: string;
+    end: string;
+  };
   duration: number; // duration in minutes
   project: string | null;
   activity: string | null;
@@ -186,8 +188,10 @@ export function parseReport(input: string): {
     const parts = currentLine.split(" - ");
 
     const entry: ReportEntry = {
-      start: startTime,
-      end: endTime,
+      time: {
+        start: startTime,
+        end: endTime,
+      },
       duration: duration,
       project: null,
       activity: null,
@@ -396,7 +400,8 @@ export function serializeReport(entries: ReportEntry[]): string {
   const sortedEntries = entries
     .filter((entry) => entry.description)
     .sort(
-      (a, b) => parseTimeIntoMinutes(a.start) - parseTimeIntoMinutes(b.start),
+      (a, b) =>
+        parseTimeIntoMinutes(a.time.start) - parseTimeIntoMinutes(b.time.start),
     );
 
   for (const entryIndex of sortedEntries.keys()) {
@@ -407,7 +412,7 @@ export function serializeReport(entries: ReportEntry[]): string {
         ? sortedEntries[nextEntryIndex]
         : null;
 
-    let line = entry.start;
+    let line = entry.time.start;
 
     if (entry.project) {
       line += ` - ${entry.project}`;
@@ -421,8 +426,8 @@ export function serializeReport(entries: ReportEntry[]): string {
 
     output += `${line}\n`;
 
-    if (!nextEntry || entry.end !== nextEntry.start) {
-      output += `${entry.end} - \n`;
+    if (!nextEntry || entry.time.end !== nextEntry.time.start) {
+      output += `${entry.time.end} - \n`;
     }
   }
 

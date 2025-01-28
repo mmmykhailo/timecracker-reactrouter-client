@@ -17,7 +17,13 @@ type ReportEntryCardProps = {
 
 export default function ReportEntryCard({
   isInvalid,
-  entry: { project, activity, description, start, end, duration },
+  entry: {
+    project,
+    activity,
+    description,
+    time: { start, end },
+    duration,
+  },
   entryIndex,
   selectedDate,
   className,
