@@ -6,7 +6,7 @@ import {
   isSameMonth,
 } from "date-fns";
 import { useHotkeys } from "react-hotkeys-hook";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { get as idbGet, del as idbDel } from "idb-keyval";
 import { Button } from "~/components/ui/button";
 import { AppHeader } from "~/components/app-header";
@@ -212,16 +212,6 @@ export default function Home() {
   const [entryIndexToEdit, setEntryIndexToEdit] = useState<number | null>(null);
 
   useEffect(() => {
-    if (actionData?.type === "update-report" && actionData.updatedReports) {
-      setEntryIndexToEdit(null);
-      setReports((oldReports) => ({
-        ...oldReports,
-        ...actionData.updatedReports,
-      }));
-    }
-  }, [actionData]);
-
-  useEffect(() => {
     if (fetcher.data?.reports) {
       setReports((oldReports) => ({
         ...oldReports,
@@ -257,6 +247,17 @@ export default function Home() {
   const handleAddNewEntryClick = () => {
     setEntryIndexToEdit(selectedReport.entries?.length || 0);
   };
+
+  const handleEntryFormClose = useCallback(() => setEntryIndexToEdit(null), []);
+
+  const handleUpdateReports = useCallback(
+    (updatedReports: Reports) =>
+      setReports((oldReports) => ({
+        ...oldReports,
+        ...updatedReports,
+      })),
+    [],
+  );
 
   useHotkeys("ctrl+space", handleAddNewEntryClick);
 
@@ -397,7 +398,8 @@ export default function Home() {
         report={selectedReport}
         entryIndex={entryIndexToEdit}
         selectedDate={selectedDate}
-        onClose={() => setEntryIndexToEdit(null)}
+        onClose={handleEntryFormClose}
+        onUpdateReports={handleUpdateReports}
       />
     </div>
   );

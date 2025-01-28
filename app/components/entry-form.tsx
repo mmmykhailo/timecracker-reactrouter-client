@@ -2,7 +2,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
-import type { Report } from "~/lib/reports";
+import type { Report, Reports } from "~/lib/reports";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,14 @@ import {
 } from "./ui/dialog";
 import { useFetcher } from "react-router";
 import { format, isToday } from "date-fns";
-import { useMemo, useRef, useState, type KeyboardEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 import { cn } from "~/lib/utils";
 import { useTimeInput } from "~/hooks/use-time-input";
 import { formatTime } from "~/lib/time-strings";
@@ -24,6 +31,7 @@ type EntryFormProps = {
   entryIndex: number | null;
   selectedDate: Date;
   onClose: () => void;
+  onUpdateReports: (updatedReports: Reports) => void;
 };
 
 const EntryForm = ({
@@ -31,6 +39,7 @@ const EntryForm = ({
   entryIndex,
   selectedDate,
   onClose,
+  onUpdateReports,
 }: EntryFormProps) => {
   const { onChange: onTimeChange, onBlur: onTimeBlur } = useTimeInput();
   const submitButtonRef = useRef<HTMLButtonElement>(null);
@@ -70,10 +79,23 @@ const EntryForm = ({
     }
   };
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsValidationStale(true);
     onClose();
-  };
+  }, [onClose]);
+
+  useEffect(() => {
+    if (
+      fetcher.state !== "idle" ||
+      fetcher.data?.type !== "update-report" ||
+      !fetcher.data.updatedReports
+    ) {
+      return;
+    }
+
+    handleClose();
+    onUpdateReports(fetcher.data.updatedReports);
+  }, [fetcher.state, fetcher.data, handleClose, onUpdateReports]);
 
   return (
     <Dialog
