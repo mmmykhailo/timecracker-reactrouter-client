@@ -5,6 +5,7 @@ import { Form } from "react-router";
 import { format } from "date-fns";
 import { cn } from "~/lib/utils";
 import { formatDuration } from "~/lib/time-strings";
+import CopyableText from "./ui/copyable-text";
 
 type ReportEntryCardProps = {
   isInvalid?: boolean;
@@ -40,12 +41,18 @@ export default function ReportEntryCard({
       )}
     >
       <div className="min-w-0 shrink">
-        <div className="line-clamp-1 break-words font-semibold">{project}</div>
-        <div className="line-clamp-1 break-words font-semibold text-sm">
-          {activity}
-        </div>
+        <CopyableText>
+          <div className="line-clamp-1 break-all font-semibold">{project}</div>
+        </CopyableText>
+        {!!activity && (
+          <CopyableText>
+            <span className="line-clamp-1 break-all font-semibold text-sm">
+              {activity}
+            </span>
+          </CopyableText>
+        )}
         <div className="break-words text-muted-foreground text-sm">
-          {description}
+          <CopyableText>{description}</CopyableText>
         </div>
       </div>
       <div className="flex shrink-0 flex-col items-end justify-between gap-1">
@@ -53,7 +60,7 @@ export default function ReportEntryCard({
           {start} - {end}
         </div>
         <div className="text-muted-foreground text-sm">
-          {formatDuration(duration)}
+          <CopyableText>{formatDuration(duration)}</CopyableText>
         </div>
         <div className="mt-1 flex gap-2">
           <Button variant="outline" size="icon" onClick={onEditClick}>

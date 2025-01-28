@@ -19,6 +19,7 @@ import {
   type DailyDurationsItem,
 } from "~/lib/reports";
 import { formatDuration } from "~/lib/time-strings";
+import CopyableText from "./ui/copyable-text";
 
 type HoursCalendarProps = {
   isCompact?: boolean;
@@ -180,7 +181,9 @@ const HoursCalendar = ({
             {format(selectedMonth, "MMMM yyyy")}
           </div>
           <div className="text-muted-foreground text-sm">
-            You tracked {formatDuration(monthlyTotalDuration)} this month.
+            You tracked{" "}
+            <CopyableText>{formatDuration(monthlyTotalDuration)}</CopyableText>{" "}
+            this month.
           </div>
         </div>
         <div className="flex gap-2">
