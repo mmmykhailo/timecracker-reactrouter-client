@@ -21,24 +21,29 @@ const CopyableText: React.FC<CopyableSpanProps> = ({
   const [isJustCopied, setIsJustCopied] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const resetTimeout = useRef<ReturnType<typeof setInterval>>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const copyText = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      setIsJustCopied(true);
-      setIsOpen(true);
+      return true;
     } catch (err) {
       console.error("Failed to copy text:", err);
+      return false;
     }
   };
 
   const handleClick = async () => {
-    const text = children?.toString();
+    const text = buttonRef.current?.innerText;
     if (!text) {
       return;
     }
 
-    copyText(text);
+    if (!copyText(text)) {
+      return;
+    }
+    setIsJustCopied(true);
+    setIsOpen(true);
 
     if (resetTimeout.current) {
       clearTimeout(resetTimeout.current);
@@ -54,6 +59,7 @@ const CopyableText: React.FC<CopyableSpanProps> = ({
       <Tooltip open={isOpen} onOpenChange={setIsOpen}>
         <TooltipTrigger asChild>
           <button
+            ref={buttonRef}
             type="button"
             onClick={handleClick}
             className={clsx(
