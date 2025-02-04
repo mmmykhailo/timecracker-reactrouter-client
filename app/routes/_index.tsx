@@ -273,7 +273,7 @@ export default function Home() {
     [],
   );
 
-  useHotkeys("ctrl+space", handleAddNewEntryClick);
+  useHotkeys("shift+space", handleAddNewEntryClick);
 
   return (
     <div className="min-w-[640px]">
@@ -377,7 +377,7 @@ export default function Home() {
                 Add new entry
               </Button>
               <div className="text-center text-muted-foreground text-sm">
-                or press Ctrl + Space
+                or press Shift + Space
               </div>
             </div>
           </div>
