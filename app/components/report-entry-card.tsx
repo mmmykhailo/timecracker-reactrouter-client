@@ -41,16 +41,22 @@ export default function ReportEntryCard({
       )}
     >
       <div className="min-w-0 shrink">
-        <CopyableText>
-          <div className="line-clamp-1 break-all font-semibold">{project}</div>
-        </CopyableText>
-        {!!activity && (
+        <div>
           <CopyableText>
-            <span className="line-clamp-1 break-all font-semibold text-sm">
-              {activity}
+            <span className="line-clamp-1 break-all font-semibold">
+              {project}
             </span>
           </CopyableText>
-        )}
+        </div>
+        <div>
+          {!!activity && (
+            <CopyableText>
+              <span className="line-clamp-1 break-all font-semibold text-sm">
+                {activity}
+              </span>
+            </CopyableText>
+          )}
+        </div>
         <div className="break-words text-muted-foreground text-sm">
           <CopyableText>{description}</CopyableText>
         </div>
