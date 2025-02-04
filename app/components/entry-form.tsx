@@ -25,11 +25,13 @@ import { cn } from "~/lib/utils";
 import { useTimeInput } from "~/hooks/use-time-input";
 import { formatTime } from "~/lib/time-strings";
 import type { clientAction } from "~/routes/_index";
+import { AutoCompleteInput } from "./ui/autocomplete-input";
 
 type EntryFormProps = {
   report: Report | null;
   entryIndex: number | null;
   selectedDate: Date;
+  recentProjects: Array<string>;
   onClose: () => void;
   onUpdateReports: (updatedReports: Reports) => void;
 };
@@ -38,6 +40,7 @@ const EntryForm = ({
   report,
   entryIndex,
   selectedDate,
+  recentProjects,
   onClose,
   onUpdateReports,
 }: EntryFormProps) => {
@@ -83,6 +86,15 @@ const EntryForm = ({
     setIsValidationStale(true);
     onClose();
   }, [onClose]);
+
+  const getProjectSuggestions = (value: string) => {
+    if (!value) {
+      return recentProjects.slice(-6);
+    }
+    return recentProjects
+      .filter((project) => project.includes(value))
+      .slice(-6);
+  };
 
   useEffect(() => {
     if (
@@ -180,17 +192,14 @@ const EntryForm = ({
 
           <div className="space-y-2">
             <Label htmlFor="project">Project *</Label>
-            <Input
+            <AutoCompleteInput
               required
               id="project"
               name="project"
-              className={cn({
-                "border-destructive": errors?.nested?.project,
-              })}
               defaultValue={entry?.project || ""}
-              autoComplete="off"
               maxLength={32}
               placeholder="Project name"
+              getSuggestions={getProjectSuggestions}
             />
           </div>
 

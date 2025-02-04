@@ -14,6 +14,7 @@ import HoursCalendar from "~/components/hours-calendar";
 import {
   calculateDailyDurations,
   DATE_FORMAT,
+  getProjectsBetweenDates,
   readReport,
   readReports,
   writeReport,
@@ -57,14 +58,24 @@ export async function clientLoader() {
     }
 
     const currentDate = new Date();
+    const currentMonth = format(currentDate, "yyyy-MM");
+
+    const reports = await readReports(
+      rootHandle,
+      addMonths(startOfMonth(currentDate), -1),
+      endOfMonth(currentDate),
+    );
+
+    const recentProjects = getProjectsBetweenDates(
+      reports,
+      addMonths(currentDate, -1),
+      currentDate,
+    );
 
     return {
-      reports: await readReports(
-        rootHandle,
-        addMonths(startOfMonth(currentDate), -1),
-        endOfMonth(currentDate),
-      ),
-      currentMonth: format(currentDate, "yyyy-MM"),
+      reports,
+      currentMonth,
+      recentProjects,
     };
   } catch (e) {
     console.error(e);
@@ -197,8 +208,11 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
 }
 
 export default function Home() {
-  const { reports: initialReports, currentMonth } =
-    useLoaderData<typeof clientLoader>();
+  const {
+    reports: initialReports,
+    currentMonth,
+    recentProjects,
+  } = useLoaderData<typeof clientLoader>();
   const actionData = useActionData<typeof clientAction>();
   const navigate = useNavigate();
   const fetcher = useFetcher();
@@ -398,6 +412,7 @@ export default function Home() {
         report={selectedReport}
         entryIndex={entryIndexToEdit}
         selectedDate={selectedDate}
+        recentProjects={recentProjects}
         onClose={handleEntryFormClose}
         onUpdateReports={handleUpdateReports}
       />

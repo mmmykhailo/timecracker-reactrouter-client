@@ -1,6 +1,8 @@
 import {
   areIntervalsOverlapping,
+  eachDayOfInterval,
   endOfWeek,
+  format,
   getISOWeek,
   parse,
   parseISO,
@@ -38,7 +40,7 @@ export type Report = {
   hasNegativeDuration?: boolean;
 };
 
-export type Reports = Record<string, Report>;
+export type Reports = Record<string, Report>; // key is yyyyMMdd
 
 export type DailyDurationsItem = {
   duration: number;
@@ -484,3 +486,31 @@ async function writeFileToPath(
     return null;
   }
 }
+
+export const getProjectsBetweenDates = (
+  reports: Reports,
+  startDate: Date,
+  endDate: Date,
+) => {
+  const projects = new Set<string>();
+
+  const dates = eachDayOfInterval({
+    start: startDate,
+    end: endDate,
+  });
+
+  for (const date of dates) {
+    const formattedDate = format(date, "yyyyMMdd");
+    const report = reports[formattedDate];
+
+    if (report?.entries) {
+      for (const entry of report.entries) {
+        if (entry.project) {
+          projects.add(entry.project);
+        }
+      }
+    }
+  }
+
+  return Array.from(projects);
+};
