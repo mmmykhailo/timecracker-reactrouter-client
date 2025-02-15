@@ -52,12 +52,12 @@ const EntryForm = ({
   const entry = (entryIndex !== null && report?.entries?.[entryIndex]) || null;
 
   const [defaultStart, defaultEnd] = useMemo(() => {
-    if (!isToday(selectedDate)) {
-      return ["", ""];
-    }
-
     const prevEntry =
       (entryIndex !== null && report?.entries?.[entryIndex - 1]) || null;
+
+    if (!isToday(selectedDate)) {
+      return [prevEntry?.time.end || "", ""];
+    }
 
     const now = new Date();
     const hours = now.getHours();
