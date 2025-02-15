@@ -190,7 +190,7 @@ export function YearlyActivityGraph({
                     />
                   </TooltipTrigger>
                   <TooltipContent className="pointer-events-none">
-                    {colorThresholds[i] ? (
+                    {colorThresholds[i] !== undefined ? (
                       <div className="text-sm">
                         More than {formatDuration(colorThresholds[i])}
                       </div>
