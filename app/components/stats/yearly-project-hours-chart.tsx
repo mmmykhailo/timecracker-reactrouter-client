@@ -12,6 +12,7 @@ import type { MonthlyDurations } from "~/lib/reports";
 import { convertMonthStrToShortName } from "~/lib/date-strings";
 import { Button } from "../ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "~/lib/utils";
 
 const colors = [
   "#003f5c",
@@ -71,10 +72,12 @@ const CustomTooltip = ({
 
 type YearlyProjectHoursChartProps = {
   monthlyDurations: MonthlyDurations;
+  className?: string;
 };
 
 export function YearlyProjectHoursChart({
   monthlyDurations,
+  className,
 }: YearlyProjectHoursChartProps) {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
@@ -108,7 +111,7 @@ export function YearlyProjectHoursChart({
   }, [selectedYear, monthlyDurations]);
 
   return (
-    <div className="col-span-6 flex flex-col gap-4 rounded-xl border p-4">
+    <div className={cn("flex flex-col gap-4 rounded-xl border p-4", className)}>
       <div className="flex justify-between">
         <div className="flex flex-col gap-1.5">
           <div className="font-semibold leading-none tracking-tight">

@@ -53,23 +53,31 @@ export default function Home() {
   return (
     <div className="min-w-[640px]">
       <AppHeader />
-      <div className="mt-8 flex flex-col gap-4 p-4 ">
-        <div className="w-max">
-          <Suspense fallback={<YearlyActivityGraph dailyDurations={{}} />}>
-            <Await resolve={dailyDurationsPromise}>
-              {(dailyDurations) => (
-                <YearlyActivityGraph dailyDurations={dailyDurations} />
-              )}
-            </Await>
-          </Suspense>
-        </div>
+      <div className="mt-8 flex flex-col gap-4 p-4">
         <div className="flex flex-1 flex-col gap-4 lg:grid lg:grid-cols-12">
+          <div className="lg:col-span-6">
+            <Suspense fallback={<YearlyActivityGraph dailyDurations={{}} />}>
+              <Await resolve={dailyDurationsPromise}>
+                {(dailyDurations) => (
+                  <YearlyActivityGraph dailyDurations={dailyDurations} />
+                )}
+              </Await>
+            </Suspense>
+          </div>
           <Suspense
-            fallback={<YearlyProjectHoursChart monthlyDurations={{}} />}
+            fallback={
+              <YearlyProjectHoursChart
+                monthlyDurations={{}}
+                className="lg:col-span-6"
+              />
+            }
           >
             <Await resolve={monthlyDurationsPromise}>
               {(monthlyDurations) => (
-                <YearlyProjectHoursChart monthlyDurations={monthlyDurations} />
+                <YearlyProjectHoursChart
+                  monthlyDurations={monthlyDurations}
+                  className="lg:col-span-6"
+                />
               )}
             </Await>
           </Suspense>

@@ -11,9 +11,11 @@ import { useCallback, useMemo, useState } from "react";
 import { eachDayOfInterval, endOfYear, format, startOfYear } from "date-fns";
 import { cn } from "~/lib/utils";
 import { formatDuration } from "~/lib/time-strings";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 type YearlyActivityGraphProps = {
   dailyDurations: DailyDurations;
+  className?: string;
 };
 
 const regularDurationPerDay = 8 * 60;
@@ -46,6 +48,7 @@ const getContributionColorClassName = (duration: number): string => {
 
 export function YearlyActivityGraph({
   dailyDurations,
+  className,
 }: YearlyActivityGraphProps) {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
@@ -94,7 +97,7 @@ export function YearlyActivityGraph({
   );
 
   return (
-    <div className="col-span-6 flex flex-col gap-4 rounded-xl border p-4 ">
+    <div className={cn("flex flex-col gap-4 rounded-xl border p-4", className)}>
       <div className="flex justify-between">
         <div className="flex flex-col gap-1.5">
           <div className="font-semibold leading-none tracking-tight">
@@ -123,50 +126,53 @@ export function YearlyActivityGraph({
       </div>
       <div>
         <TooltipProvider disableHoverableContent skipDelayDuration={0}>
-          <div className="flex gap-1">
-            {weeks.map((week) => (
-              <div key={week[0].toString()} className="flex flex-col gap-1">
-                {week.map((day) => {
-                  const dateKey = format(day, "yyyyMMdd");
-                  const dailyDuration = dailyDurations[dateKey] || {
-                    duration: 0,
-                    byProject: {},
-                  };
+          <ScrollArea className="-m-1 -mb-3 max-w-full">
+            <div className="flex gap-1 p-1 pb-3">
+              {weeks.map((week) => (
+                <div key={week[0].toString()} className="flex flex-col gap-1">
+                  {week.map((day) => {
+                    const dateKey = format(day, "yyyyMMdd");
+                    const dailyDuration = dailyDurations[dateKey] || {
+                      duration: 0,
+                      byProject: {},
+                    };
 
-                  return (
-                    <Tooltip key={dateKey}>
-                      <TooltipTrigger>
-                        <div
-                          className={cn(
-                            "h-3 w-3 rounded-sm hover:ring-2 hover:ring-ring",
-                            getContributionColorClassName(
-                              dailyDuration.duration,
-                            ),
-                          )}
-                          data-date={dateKey}
-                        />
-                      </TooltipTrigger>
-                      <TooltipContent className="pointer-events-none">
-                        <div className="text-sm">
-                          <p className="font-semibold">
-                            {format(day, "MMM d, yyyy")}
-                          </p>
-                          <p>{formatDuration(dailyDuration.duration)}</p>
-                          <div className="mt-1 text-xs">
-                            {getDailyProjectsDurations(dateKey)
-                              .split("\n")
-                              .map((line) => (
-                                <p key={line}>{line}</p>
-                              ))}
+                    return (
+                      <Tooltip key={dateKey}>
+                        <TooltipTrigger>
+                          <div
+                            className={cn(
+                              "h-3 w-3 rounded-sm hover:ring-2 hover:ring-ring",
+                              getContributionColorClassName(
+                                dailyDuration.duration,
+                              ),
+                            )}
+                            data-date={dateKey}
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent className="pointer-events-none">
+                          <div className="text-sm">
+                            <p className="font-semibold">
+                              {format(day, "MMM d, yyyy")}
+                            </p>
+                            <p>{formatDuration(dailyDuration.duration)}</p>
+                            <div className="mt-1 text-xs">
+                              {getDailyProjectsDurations(dateKey)
+                                .split("\n")
+                                .map((line) => (
+                                  <p key={line}>{line}</p>
+                                ))}
+                            </div>
                           </div>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
         </TooltipProvider>
 
         <TooltipProvider disableHoverableContent skipDelayDuration={0}>
