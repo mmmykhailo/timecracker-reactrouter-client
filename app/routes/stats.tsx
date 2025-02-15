@@ -1,10 +1,14 @@
+import { Suspense } from "react";
+import { Await, redirect, useLoaderData } from "react-router";
 import { get as idbGet, del as idbDel } from "idb-keyval";
 import { AppHeader } from "~/components/app-header";
-import { readReports } from "~/lib/reports";
-import { Await, redirect, useLoaderData } from "react-router";
+import {
+  calculateDailyDurations,
+  calculateMonthlyDurations,
+  readReports,
+} from "~/lib/reports";
 import { YearlyProjectHoursChart } from "~/components/stats/yearly-project-hours-chart";
-import { Suspense } from "react";
-import { LoaderCircle } from "lucide-react";
+import { YearlyActivityGraph } from "~/components/stats/yearly-activity-graph";
 
 export function meta() {
   return [
@@ -22,8 +26,18 @@ export async function clientLoader() {
       return redirect("/welcome");
     }
 
+    const reportsPromise = readReports(rootHandle);
+
+    const dailyDurationsPromise = Promise.resolve(
+      calculateDailyDurations(await reportsPromise),
+    );
+    const monthlyDurationsPromise = Promise.resolve(
+      calculateMonthlyDurations(await dailyDurationsPromise),
+    );
+
     return {
-      reports: readReports(rootHandle),
+      dailyDurationsPromise,
+      monthlyDurationsPromise,
     };
   } catch (e) {
     console.error(e);
@@ -33,26 +47,34 @@ export async function clientLoader() {
 }
 
 export default function Home() {
-  const { reports: loaderReports } = useLoaderData<typeof clientLoader>();
+  const { dailyDurationsPromise, monthlyDurationsPromise } =
+    useLoaderData<typeof clientLoader>();
 
   return (
     <div className="min-w-[640px]">
       <AppHeader />
-      <Suspense
-        fallback={
-          <div className="grid min-h-[50svh] place-items-center">
-            <LoaderCircle className="h-8 w-8 animate-spin" />
-          </div>
-        }
-      >
-        <Await resolve={loaderReports}>
-          {(reports) => (
-            <div className="mt-8 flex flex-1 flex-col gap-4 p-4 lg:grid lg:grid-cols-12">
-              <YearlyProjectHoursChart reports={reports} />
-            </div>
-          )}
-        </Await>
-      </Suspense>
+      <div className="mt-8 flex flex-col gap-4 p-4 ">
+        <div className="w-max">
+          <Suspense fallback={<YearlyActivityGraph dailyDurations={{}} />}>
+            <Await resolve={dailyDurationsPromise}>
+              {(dailyDurations) => (
+                <YearlyActivityGraph dailyDurations={dailyDurations} />
+              )}
+            </Await>
+          </Suspense>
+        </div>
+        <div className="flex flex-1 flex-col gap-4 lg:grid lg:grid-cols-12">
+          <Suspense
+            fallback={<YearlyProjectHoursChart monthlyDurations={{}} />}
+          >
+            <Await resolve={monthlyDurationsPromise}>
+              {(monthlyDurations) => (
+                <YearlyProjectHoursChart monthlyDurations={monthlyDurations} />
+              )}
+            </Await>
+          </Suspense>
+        </div>
+      </div>
     </div>
   );
 }

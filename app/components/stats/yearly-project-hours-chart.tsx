@@ -6,16 +6,9 @@ import {
   type ComponentProps,
   type CSSProperties,
 } from "react";
-import {
-  ChartContainer,
-  ChartTooltip,
-} from "~/components/ui/chart";
+import { ChartContainer, ChartTooltip } from "~/components/ui/chart";
 import { formatDuration } from "~/lib/time-strings";
-import {
-  calculateDailyDurations,
-  calculateMonthlyDurations,
-  type Reports,
-} from "~/lib/reports";
+import type { MonthlyDurations } from "~/lib/reports";
 import { convertMonthStrToShortName } from "~/lib/date-strings";
 import { Button } from "../ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -77,19 +70,15 @@ const CustomTooltip = ({
 };
 
 type YearlyProjectHoursChartProps = {
-  reports: Reports;
+  monthlyDurations: MonthlyDurations;
 };
 
 export function YearlyProjectHoursChart({
-  reports,
+  monthlyDurations,
 }: YearlyProjectHoursChartProps) {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   const { chartData, yearNumberStr, projectNames } = useMemo(() => {
-    const monthlyDurations = calculateMonthlyDurations(
-      calculateDailyDurations(reports),
-    );
-
     const projectNames = new Set<string>([]);
 
     const yearNumberStr = selectedYear.toString();
@@ -116,7 +105,7 @@ export function YearlyProjectHoursChart({
       yearNumberStr,
       projectNames: Array.from(projectNames),
     };
-  }, [reports, selectedYear]);
+  }, [selectedYear, monthlyDurations]);
 
   return (
     <div className="col-span-6 flex flex-col gap-4 rounded-xl border p-4">
