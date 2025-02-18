@@ -125,7 +125,11 @@ export function YearlyActivityGraph({
         </div>
       </div>
       <div>
-        <TooltipProvider disableHoverableContent skipDelayDuration={0}>
+        <TooltipProvider
+          disableHoverableContent
+          delayDuration={0}
+          skipDelayDuration={0}
+        >
           <ScrollArea className="-m-1 -mb-3 max-w-full">
             <div className="flex gap-1 p-1 pb-3">
               {weeks.map((week) => (
@@ -140,9 +144,9 @@ export function YearlyActivityGraph({
                     return (
                       <Tooltip key={dateKey}>
                         <TooltipTrigger>
-                          <div
+                          <span
                             className={cn(
-                              "h-3 w-3 rounded-sm hover:ring-2 hover:ring-ring",
+                              "block h-3 w-3 rounded-sm hover:ring-2 hover:ring-ring",
                               getContributionColorClassName(
                                 dailyDuration.duration,
                               ),
@@ -182,9 +186,9 @@ export function YearlyActivityGraph({
               {colorClassNames.map((className, i) => (
                 <Tooltip key={className}>
                   <TooltipTrigger>
-                    <div
+                    <span
                       className={cn(
-                        "h-3 w-3 rounded-sm hover:ring-2 hover:ring-ring",
+                        "block h-3 w-3 rounded-sm hover:ring-2 hover:ring-ring",
                         className,
                       )}
                     />
