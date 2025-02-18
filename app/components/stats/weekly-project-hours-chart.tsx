@@ -98,7 +98,10 @@ export function WeeklyProjectHoursChart({
         </div>
       </div>
 
-      <ChartContainer config={{}} className="min-h-[160px] w-full">
+      <ChartContainer
+        config={{}}
+        className="min-h-[160px] w-full overflow-hidden"
+      >
         <BarChart accessibilityLayer data={chartData}>
           <CartesianGrid vertical={false} />
           <XAxis
