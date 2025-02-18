@@ -1,84 +1,23 @@
-import type * as RechartsPrimitive from "recharts";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-import {
-  useMemo,
-  useState,
-  type ComponentProps,
-  type CSSProperties,
-} from "react";
+import { useMemo, useState } from "react";
 import { ChartContainer, ChartTooltip } from "~/components/ui/chart";
-import { formatDuration } from "~/lib/time-strings";
 import type { MonthlyDurations } from "~/lib/reports";
 import { convertMonthStrToShortName } from "~/lib/date-strings";
 import { Button } from "../ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "~/lib/utils";
+import { chartColors } from "~/lib/colors";
+import { HoursChartTooltip } from "./hours-chart-tooltip";
 
-const colors = [
-  "#003f5c",
-  "#2f4b7c",
-  "#665191",
-  "#a05195",
-  "#d45087",
-  "#f95d6a",
-  "#ff7c43",
-  "#ffa600",
-];
-
-const CustomTooltip = ({
-  active,
-  payload,
-  label,
-  names,
-}: ComponentProps<typeof RechartsPrimitive.Tooltip> & {
-  names: Array<string>;
-}) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="flex flex-col gap-2 rounded border bg-background p-2">
-        <div className="font-medium">{label}</div>
-        <div className="flex flex-col-reverse">
-          {payload.map(({ name, value }) => {
-            if (typeof value !== "number" || typeof name !== "string") {
-              return;
-            }
-            return (
-              <div key={name} className="flex w-full justify-between gap-3">
-                <div className="flex items-center gap-1">
-                  <div
-                    className="h-2.5 w-2.5 shrink-0 rounded-[2px] bg-(--color-bg)"
-                    style={
-                      {
-                        "--color-bg":
-                          colors[
-                            names.findIndex((n) => n === name) % colors.length
-                          ],
-                      } as CSSProperties
-                    }
-                  />
-                  {name}
-                </div>
-                {formatDuration(value)}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
-
-  return null;
-};
-
-type YearlyProjectHoursChartProps = {
+type MonthlyProjectHoursChartProps = {
   monthlyDurations: MonthlyDurations;
   className?: string;
 };
 
-export function YearlyProjectHoursChart({
+export function MonthlyProjectHoursChart({
   monthlyDurations,
   className,
-}: YearlyProjectHoursChartProps) {
+}: MonthlyProjectHoursChartProps) {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   const { chartData, yearNumberStr, projectNames } = useMemo(() => {
@@ -115,7 +54,7 @@ export function YearlyProjectHoursChart({
       <div className="flex justify-between">
         <div className="flex flex-col gap-1.5">
           <div className="font-semibold leading-none tracking-tight">
-            Yearly project hours
+            Monthly project hours
           </div>
           <div className="text-muted-foreground text-sm">
             Data for the year {yearNumberStr}
@@ -149,14 +88,14 @@ export function YearlyProjectHoursChart({
             axisLine={false}
             tickFormatter={(value) => value.slice(0, 3)}
           />
-          <ChartTooltip content={<CustomTooltip names={projectNames} />} />
+          <ChartTooltip content={<HoursChartTooltip names={projectNames} />} />
 
           {projectNames.map((projectName, i) => (
             <Bar
               key={projectName}
               dataKey={projectName}
               stackId="a"
-              fill={colors[i % colors.length]}
+              fill={chartColors[i % chartColors.length]}
             />
           ))}
         </BarChart>
