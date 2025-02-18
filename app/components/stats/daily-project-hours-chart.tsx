@@ -51,7 +51,7 @@ export function DailyProjectHoursChart({
 
       return {
         dateStr: dateStr,
-        shortWeekName: getDate(date),
+        shortDayName: getDate(date),
         ...weekData?.byProject,
       };
     });
@@ -100,7 +100,7 @@ export function DailyProjectHoursChart({
         <BarChart accessibilityLayer data={chartData}>
           <CartesianGrid vertical={false} />
           <XAxis
-            dataKey="shortWeekName"
+            dataKey="shortDayName"
             tickLine={false}
             tickMargin={10}
             axisLine={false}
