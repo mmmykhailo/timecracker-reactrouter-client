@@ -141,6 +141,7 @@ const HoursCalendar = ({
         className={cn(
           "grid grid-cols-7",
           "[&:last-child>*:first-child]:rounded-bl [&:last-child>*:last-child]:rounded-br",
+          "[&:last-child>*]:border-b-0",
         )}
       >
         {weekDays.map((day) => renderDayCell(day))}
