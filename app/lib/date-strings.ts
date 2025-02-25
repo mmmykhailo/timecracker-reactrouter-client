@@ -1,4 +1,4 @@
-import { endOfWeek, format, parseISO, startOfWeek } from "date-fns";
+import { format, parseISO, startOfWeek } from "date-fns";
 
 export const shortMonthNames = [
   "Jan",
@@ -22,14 +22,8 @@ export const parseDateString = (dateStr: string): Date => {
   return parseISO(`${year}-${month}-${day}`);
 };
 
-export function getWeekStartDateString(dateStr: string) {
-  const date = parseDateString(dateStr);
+export function getWeekStartDateString(date: Date) {
   return format(startOfWeek(date, { weekStartsOn: 1 }), "yyyyMMdd");
-}
-
-export function getWeekEndDateString(dateStr: string) {
-  const date = parseDateString(dateStr);
-  return format(endOfWeek(date, { weekStartsOn: 1 }), "yyyyMMdd");
 }
 
 export function convertMonthStrToShortName(monthStr: string) {

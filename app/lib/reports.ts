@@ -11,7 +11,7 @@ import {
 import { safeParse, type RegexIssue, type StringIssue } from "valibot";
 import { TimeSchema, type TimeIssue } from "./schema";
 import { calculateDuration, parseTimeIntoMinutes } from "./time-strings";
-import { getWeekStartDateString } from "./date-strings";
+import { getWeekStartDateString, parseDateString } from "./date-strings";
 
 export const TIMEREPORT_FILENAME_PREFIX = "timereport - ";
 export const WEEK_DIR_NAME_REGEX = /^week (\d{2})$/i;
@@ -42,58 +42,63 @@ export type Report = {
 
 export type Reports = Record<string, Report>; // key is yyyyMMdd
 
+export type DurationByProject = {
+  type: "byProject";
+  project: string;
+  duration: number;
+};
+export type DurationByProjectActivity = {
+  type: "byProjectActivity";
+  project: string;
+  activity: string;
+  duration: number;
+};
+export type DurationByProjectDescription = {
+  type: "byProjectDescription";
+  project: string;
+  description: string;
+  duration: number;
+};
+
+export type GrouppedDuration =
+  | DurationByProject
+  | DurationByProjectActivity
+  | DurationByProjectDescription;
+
+export type DurationsByProject = Record<string, DurationByProject>;
+export type DurationsByProjectActivity = Record<
+  string,
+  DurationByProjectActivity
+>;
+export type DurationsByProjectDescription = Record<
+  string,
+  DurationByProjectDescription
+>;
+
+export type GrouppedDurations =
+  | DurationsByProject
+  | DurationsByProjectActivity
+  | DurationsByProjectDescription;
+
 export type DailyDurationsItem = {
   totalDuration: number;
-  byProject: Record<string, {
-    project: string;
-    duration: number;
-  }>;
-  byProjectActivity: Record<string, {
-    project: string;
-    activity: string;
-    duration: number;
-  }>;
-  byProjectDescription: Record<string, {
-    project: string;
-    description: string;
-    duration: number;
-  }>;
+  byProject: DurationsByProject;
+  byProjectActivity: DurationsByProjectActivity;
+  byProjectDescription: DurationsByProjectDescription;
   hasNegativeDuration?: boolean;
 };
 export type WeeklyDurationsItem = {
   totalDuration: number;
-  byProject: Record<string, {
-    project: string;
-    duration: number;
-  }>;
-  byProjectActivity: Record<string, {
-    project: string;
-    activity: string;
-    duration: number;
-  }>;
-  byProjectDescription: Record<string, {
-    project: string;
-    description: string;
-    duration: number;
-  }>;
+  byProject: DurationsByProject;
+  byProjectActivity: DurationsByProjectActivity;
+  byProjectDescription: DurationsByProjectDescription;
   hasNegativeDuration?: boolean;
 };
 export type MonthlyDurationsItem = {
   totalDuration: number;
-  byProject: Record<string, {
-    project: string;
-    duration: number;
-  }>;
-  byProjectActivity: Record<string, {
-    project: string;
-    activity: string;
-    duration: number;
-  }>;
-  byProjectDescription: Record<string, {
-    project: string;
-    description: string;
-    duration: number;
-  }>;
+  byProject: DurationsByProject;
+  byProjectActivity: DurationsByProjectActivity;
+  byProjectDescription: DurationsByProjectDescription;
   hasNegativeDuration?: boolean;
 };
 
@@ -108,7 +113,7 @@ export const calculateDailyDurations = (reports: Reports): DailyDurations => {
     const byProject: DailyDurationsItem["byProject"] = {};
     const byProjectActivity: DailyDurationsItem["byProjectActivity"] = {};
     const byProjectDescription: DailyDurationsItem["byProjectDescription"] = {};
-    
+
     for (const entry of dayReport.entries || []) {
       if (!entry.duration || entry.duration < 0) {
         continue;
@@ -118,30 +123,36 @@ export const calculateDailyDurations = (reports: Reports): DailyDurations => {
 
       if (entry.project) {
         byProject[entry.project] = {
+          type: "byProject",
           project: entry.project,
-          duration: (byProject[entry.project]?.duration || 0) + entry.duration
+          duration: (byProject[entry.project]?.duration || 0) + entry.duration,
         };
       }
 
       if (entry.project && entry.activity) {
         const projectActivityKey = `${entry.project}/${entry.activity}`;
         byProjectActivity[projectActivityKey] = {
+          type: "byProjectActivity",
           project: entry.project,
           activity: entry.activity,
-          duration: (byProjectActivity[projectActivityKey]?.duration || 0) + entry.duration
+          duration:
+            (byProjectActivity[projectActivityKey]?.duration || 0) +
+            entry.duration,
         };
       }
 
       if (entry.project && entry.description) {
         const projectDescriptionKey = `${entry.project}/${entry.description}`;
         byProjectDescription[projectDescriptionKey] = {
+          type: "byProjectDescription",
           project: entry.project,
           description: entry.description,
-          duration: (byProjectDescription[projectDescriptionKey]?.duration || 0) + entry.duration
+          duration:
+            (byProjectDescription[projectDescriptionKey]?.duration || 0) +
+            entry.duration,
         };
       }
     }
-
 
     acc[date] = {
       totalDuration: duration,
@@ -158,8 +169,8 @@ export const calculateDailyDurations = (reports: Reports): DailyDurations => {
 export const calculateWeeklyDurations = (
   dailyDurations: DailyDurations,
 ): WeeklyDurations => {
-  return Object.entries(dailyDurations).reduce((acc, [date, dayData]) => {
-    const weekStartDate = getWeekStartDateString(date);
+  return Object.entries(dailyDurations).reduce((acc, [dateStr, dayData]) => {
+    const weekStartDate = getWeekStartDateString(parseDateString(dateStr));
 
     if (!acc[weekStartDate]) {
       acc[weekStartDate] = {
@@ -175,26 +186,37 @@ export const calculateWeeklyDurations = (
 
     for (const { project, duration } of Object.values(dayData.byProject)) {
       acc[weekStartDate].byProject[project] = {
+        type: "byProject",
         project: project,
-        duration: (acc[weekStartDate].byProject[project]?.duration || 0) + duration,
+        duration:
+          (acc[weekStartDate].byProject[project]?.duration || 0) + duration,
       };
     }
 
-    for (const { project, activity, duration } of Object.values(dayData.byProjectActivity)) {
+    for (const { project, activity, duration } of Object.values(
+      dayData.byProjectActivity,
+    )) {
       const key = `${project}/${activity}`;
       acc[weekStartDate].byProjectActivity[key] = {
+        type: "byProjectActivity",
         project,
         activity,
-        duration: (acc[weekStartDate].byProjectActivity[key]?.duration || 0) + duration,
+        duration:
+          (acc[weekStartDate].byProjectActivity[key]?.duration || 0) + duration,
       };
     }
 
-    for (const { project, description, duration } of Object.values(dayData.byProjectDescription)) {
+    for (const { project, description, duration } of Object.values(
+      dayData.byProjectDescription,
+    )) {
       const key = `${project}/${description}`;
       acc[weekStartDate].byProjectDescription[key] = {
+        type: "byProjectDescription",
         project,
         description,
-        duration: (acc[weekStartDate].byProjectDescription[key]?.duration || 0) + duration,
+        duration:
+          (acc[weekStartDate].byProjectDescription[key]?.duration || 0) +
+          duration,
       };
     }
 
@@ -226,26 +248,35 @@ export const calculateMonthlyDurations = (
 
     for (const { project, duration } of Object.values(dayData.byProject)) {
       acc[yearMonth].byProject[project] = {
+        type: "byProject",
         project: project,
         duration: (acc[yearMonth].byProject[project]?.duration || 0) + duration,
       };
     }
 
-    for (const { project, activity, duration } of Object.values(dayData.byProjectActivity)) {
+    for (const { project, activity, duration } of Object.values(
+      dayData.byProjectActivity,
+    )) {
       const key = `${project}/${activity}`;
       acc[yearMonth].byProjectActivity[key] = {
+        type: "byProjectActivity",
         project,
         activity,
-        duration: (acc[yearMonth].byProjectActivity[key]?.duration || 0) + duration,
+        duration:
+          (acc[yearMonth].byProjectActivity[key]?.duration || 0) + duration,
       };
     }
 
-    for (const { project, description, duration } of Object.values(dayData.byProjectDescription)) {
+    for (const { project, description, duration } of Object.values(
+      dayData.byProjectDescription,
+    )) {
       const key = `${project}/${description}`;
       acc[yearMonth].byProjectDescription[key] = {
+        type: "byProjectDescription",
         project,
         description,
-        duration: (acc[yearMonth].byProjectDescription[key]?.duration || 0) + duration,
+        duration:
+          (acc[yearMonth].byProjectDescription[key]?.duration || 0) + duration,
       };
     }
 

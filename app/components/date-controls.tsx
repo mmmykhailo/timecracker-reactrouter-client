@@ -1,9 +1,7 @@
-import { addDays, format, isSameDay } from "date-fns";
+import { addDays, isSameDay } from "date-fns";
 import { Button } from "./ui/button";
-import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { cn } from "~/lib/utils";
-import { Calendar } from "./ui/calendar";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { DatePicker } from "./ui/date-picker";
 
 type DateControlsProps = {
   selectedDate: Date;
@@ -29,36 +27,11 @@ export default function DateControls({
       >
         <ChevronLeft />
       </Button>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              "w-[240px] pl-3 text-left font-normal",
-              !selectedDate && "text-muted-foreground",
-            )}
-          >
-            {selectedDate ? (
-              format(selectedDate, "PPP")
-            ) : (
-              <span>Pick a date</span>
-            )}
-            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            autoFocus
-            mode="single"
-            defaultMonth={selectedDate || new Date()}
-            selected={selectedDate}
-            onSelect={(date) => setSelectedDate(date || new Date())}
-            disabled={(date) =>
-              date > new Date() || date < new Date("1900-01-01")
-            }
-          />
-        </PopoverContent>
-      </Popover>
+      <DatePicker
+        className="w-[180px]"
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+      />
       <Button
         disabled={!selectedDate}
         variant="outline"

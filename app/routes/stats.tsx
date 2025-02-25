@@ -12,6 +12,7 @@ import { MonthlyProjectHoursChart } from "~/components/stats/monthly-project-hou
 import { YearlyActivityGraph } from "~/components/stats/yearly-activity-graph";
 import { WeeklyProjectHoursChart } from "~/components/stats/weekly-project-hours-chart";
 import { DailyProjectHoursChart } from "~/components/stats/daily-project-hours-chart";
+import { DetailedTotals } from "~/components/stats/detailed-totals";
 
 export function meta() {
   return [
@@ -79,6 +80,31 @@ export default function Home() {
               <Await resolve={weeklyDurationsPromise}>
                 {(weeklyDurations) => (
                   <WeeklyProjectHoursChart weeklyDurations={weeklyDurations} />
+                )}
+              </Await>
+            </Suspense>
+            <Suspense
+              fallback={
+                <DetailedTotals
+                  dailyDurations={{}}
+                  weeklyDurations={{}}
+                  monthlyDurations={{}}
+                />
+              }
+            >
+              <Await
+                resolve={Promise.all([
+                  dailyDurationsPromise,
+                  weeklyDurationsPromise,
+                  monthlyDurationsPromise,
+                ])}
+              >
+                {([dailyDurations, weeklyDurations, monthlyDurations]) => (
+                  <DetailedTotals
+                    dailyDurations={dailyDurations}
+                    weeklyDurations={weeklyDurations}
+                    monthlyDurations={monthlyDurations}
+                  />
                 )}
               </Await>
             </Suspense>
