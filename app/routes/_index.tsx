@@ -39,6 +39,7 @@ import { Separator } from "~/components/ui/separator";
 import { calculateDuration, formatDuration } from "~/lib/time-strings";
 import { cn } from "~/lib/utils";
 import { RefreshPageButton } from "~/components/refresh-page-button";
+import { AddToHomescreenAlert } from "~/components/add-to-homescreen-alert";
 
 export function meta() {
   return [
@@ -285,7 +286,8 @@ export default function Home() {
   return (
     <div className="min-w-[640px]">
       <AppHeader />
-      <div className="mt-8 flex flex-1 flex-col gap-4 p-4 lg:grid lg:grid-cols-12">
+      <AddToHomescreenAlert />
+      <div className="flex flex-1 flex-col gap-4 p-4 lg:grid lg:grid-cols-12">
         <div className="col-span-8 flex flex-col gap-4">
           <div className="flex flex-wrap justify-between gap-2">
             <RefreshPageButton />
