@@ -29,17 +29,16 @@ import {
   redirect,
   useActionData,
   useLoaderData,
-  useNavigate,
   useFetcher,
   type ClientActionFunctionArgs,
 } from "react-router";
-import { RotateCw } from "lucide-react";
 import { flatten, getDotPath, safeParse } from "valibot";
 import { EntryFormSchema } from "~/lib/schema";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
 import { calculateDuration, formatDuration } from "~/lib/time-strings";
 import { cn } from "~/lib/utils";
+import { RefreshPageButton } from "~/components/refresh-page-button";
 
 export function meta() {
   return [
@@ -214,7 +213,6 @@ export default function Home() {
     recentProjects,
   } = useLoaderData<typeof clientLoader>();
   const actionData = useActionData<typeof clientAction>();
-  const navigate = useNavigate();
   const fetcher = useFetcher();
 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -290,9 +288,7 @@ export default function Home() {
       <div className="mt-8 flex flex-1 flex-col gap-4 p-4 lg:grid lg:grid-cols-12">
         <div className="col-span-8 flex flex-col gap-4">
           <div className="flex flex-wrap justify-between gap-2">
-            <Button size="icon" variant="outline" onClick={() => navigate(0)}>
-              <RotateCw />
-            </Button>
+            <RefreshPageButton />
             <DateControls
               selectedDate={selectedDate}
               setSelectedDate={handleSelectedDate}
