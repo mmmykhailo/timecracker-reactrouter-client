@@ -1,0 +1,17 @@
+{
+  "lang": "en-us",
+  "name": "Timecracker",
+  "short_name": "Timecracker",
+  "description": "Stupidly simple timetracker",
+  "start_url": "/",
+  "background_color": "#09090b",
+  "theme_color": "#fafafa",
+  "orientation": "any",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/icon512.png",
+      "sizes": "512x512"
+    }
+  ]
+}
