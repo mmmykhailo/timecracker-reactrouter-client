@@ -87,8 +87,10 @@ export function YearlyActivityGraph({
         return "No activity";
       }
 
-      const projects = Object.entries(dailyDurations[dateKey].byProject)
-        .map(([project, duration]) => `${project}: ${formatDuration(duration)}`)
+      const projects = Object.values(dailyDurations[dateKey].byProject)
+        .map(
+          ({ project, duration }) => `${project}: ${formatDuration(duration)}`,
+        )
         .join("\n");
 
       return projects || "No project details";
