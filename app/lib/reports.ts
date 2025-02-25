@@ -56,7 +56,6 @@ export type MonthlyDurationsItem = {
   duration: number;
   byProject: Record<string, number>;
   hasNegativeDuration?: boolean;
-  yearMonth: string; // yyyyMM format
 };
 
 export type DailyDurations = Record<string, DailyDurationsItem>; // key is yyyyMMdd
@@ -136,7 +135,6 @@ export const calculateMonthlyDurations = (
         duration: 0,
         byProject: {},
         hasNegativeDuration: false,
-        yearMonth,
       };
     }
 
