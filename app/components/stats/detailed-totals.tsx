@@ -10,7 +10,7 @@ import { Label } from "../ui/label";
 import { Fragment, useMemo, useState } from "react";
 import type {
   DailyDurations,
-  GrouppedDuration,
+  GroupedDuration,
   MonthlyDurations,
   WeeklyDurations,
 } from "~/lib/reports";
@@ -107,7 +107,7 @@ export function DetailedTotals({
   ]);
 
   const dataEntries = useMemo(() => {
-    return Object.entries<GrouppedDuration>(data).sort(
+    return Object.entries<GroupedDuration>(data).sort(
       (a, b) =>
         a[1].project.localeCompare(b[1].project) ||
         b[1].duration - a[1].duration,
@@ -121,7 +121,7 @@ export function DetailedTotals({
           Detailed totals
         </div>
         <div className="text-muted-foreground text-sm">
-          Data for {datePickerLabel} groupped by {selectedGroupType}
+          Data for {datePickerLabel} grouped by {selectedGroupType}
         </div>
       </div>
 

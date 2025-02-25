@@ -60,7 +60,7 @@ export type DurationByProjectDescription = {
   duration: number;
 };
 
-export type GrouppedDuration =
+export type GroupedDuration =
   | DurationByProject
   | DurationByProjectActivity
   | DurationByProjectDescription;
@@ -75,7 +75,7 @@ export type DurationsByProjectDescription = Record<
   DurationByProjectDescription
 >;
 
-export type GrouppedDurations =
+export type GroupedDurations =
   | DurationsByProject
   | DurationsByProjectActivity
   | DurationsByProjectDescription;
