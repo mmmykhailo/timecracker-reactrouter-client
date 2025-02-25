@@ -196,11 +196,19 @@ const EntryForm = ({
               required
               id="project"
               name="project"
+              wrapperClassName={cn({
+                "border-destructive": errors?.nested?.project?.[0],
+              })}
               defaultValue={entry?.project || ""}
               maxLength={32}
               placeholder="Project name"
               getSuggestions={getProjectSuggestions}
             />
+            {!!errors?.nested?.project?.[0] && (
+              <div className="mt-1 text-destructive">
+                {errors?.nested?.project?.[0]}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">

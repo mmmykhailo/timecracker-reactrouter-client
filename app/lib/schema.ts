@@ -43,7 +43,7 @@ export const EntryFormSchema = pipe(
         "Negative time detected",
       ),
     ),
-    project: pipe(string(), trim(), minLength(1), maxLength(32)),
+    project: pipe(string(), trim(), minLength(1), maxLength(32), regex(/^[A-Za-z0-9]+$/, 'Project should be alphanumeric')),
     activity: optional(pipe(string(), trim(), maxLength(32))),
     description: pipe(string(), trim(), minLength(1), maxLength(256)),
     date: DateSchema,

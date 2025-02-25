@@ -17,6 +17,7 @@ export const AutoCompleteInput = forwardRef(
     {
       getSuggestions,
       className,
+      wrapperClassName,
       defaultValue,
       ...props
     }: AutocompleteInputProps,
@@ -51,6 +52,7 @@ export const AutoCompleteInput = forwardRef(
           wrapperClassName={cn(
             "px-0 rounded-md border border-input",
             "[&:has(:focus-visible)]:outline-hidden [&:has(:focus-visible)]:ring-1 [&:has(:focus-visible)]:ring-ring",
+            wrapperClassName,
           )}
           className={cn(
             "h-9 px-3 py-1 group-focus-within:ring-ring",
