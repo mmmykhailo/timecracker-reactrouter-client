@@ -234,6 +234,15 @@ export default function Home() {
     }
   }, [fetcher.data]);
 
+  useEffect(() => {
+    if (actionData?.updatedReports) {
+      setReports((oldReports) => ({
+        ...oldReports,
+        ...actionData.updatedReports,
+      }));
+    }
+  }, [actionData?.updatedReports]);
+
   // Load month data if not already loaded
   useEffect(() => {
     const selectedMonth = format(selectedMonthDate, "yyyy-MM");

@@ -1,7 +1,7 @@
 import type { ReportEntry } from "~/lib/reports";
 import { Button } from "./ui/button";
 import { Edit, Trash } from "lucide-react";
-import { Form } from "react-router";
+import { Form, useFetcher } from "react-router";
 import { format } from "date-fns";
 import { cn } from "~/lib/utils";
 import { formatDuration } from "~/lib/time-strings";
@@ -30,6 +30,8 @@ export default function ReportEntryCard({
   className,
   onEditClick,
 }: ReportEntryCardProps) {
+  const fetcher = useFetcher();
+
   return (
     <div
       className={cn(
@@ -72,7 +74,7 @@ export default function ReportEntryCard({
           <Button variant="outline" size="icon" onClick={onEditClick}>
             <Edit size={12} />
           </Button>
-          <Form method="POST">
+          <Form method="POST" action="/?index">
             <input type="hidden" name="intent" value="delete-entry" />
             <input
               type="hidden"
