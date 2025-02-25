@@ -83,6 +83,15 @@ export default function Home() {
                 )}
               </Await>
             </Suspense>
+            <Suspense fallback={<DailyProjectHoursChart dailyDurations={{}} />}>
+              <Await resolve={dailyDurationsPromise}>
+                {(dailyDurations) => (
+                  <DailyProjectHoursChart dailyDurations={dailyDurations} />
+                )}
+              </Await>
+            </Suspense>
+          </div>
+          <div className="flex flex-col gap-4 lg:col-span-6">
             <Suspense
               fallback={
                 <DetailedTotals
@@ -108,8 +117,6 @@ export default function Home() {
                 )}
               </Await>
             </Suspense>
-          </div>
-          <div className="flex flex-col gap-4 lg:col-span-6">
             <Suspense
               fallback={<MonthlyProjectHoursChart monthlyDurations={{}} />}
             >
@@ -118,13 +125,6 @@ export default function Home() {
                   <MonthlyProjectHoursChart
                     monthlyDurations={monthlyDurations}
                   />
-                )}
-              </Await>
-            </Suspense>
-            <Suspense fallback={<DailyProjectHoursChart dailyDurations={{}} />}>
-              <Await resolve={dailyDurationsPromise}>
-                {(dailyDurations) => (
-                  <DailyProjectHoursChart dailyDurations={dailyDurations} />
                 )}
               </Await>
             </Suspense>
