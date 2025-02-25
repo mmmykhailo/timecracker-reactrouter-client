@@ -43,16 +43,19 @@ export function DailyProjectHoursChart({
 
       const weekData = dailyDurations[dateStr];
 
-      if (weekData) {
-        for (const projectName of Object.keys(weekData.byProject)) {
-          projectNames.add(projectName);
+      const chartData: Record<string, number> = {};
+
+      if (weekData?.byProject) {
+        for (const { project, duration } of Object.values(weekData.byProject)) {
+          projectNames.add(project);
+          chartData[project] = duration;
         }
       }
 
       return {
         dateStr: dateStr,
         shortDayName: getDate(date),
-        ...weekData?.byProject,
+        ...chartData,
       };
     });
 

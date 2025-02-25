@@ -137,7 +137,7 @@ export function YearlyActivityGraph({
                   {week.map((day) => {
                     const dateKey = format(day, "yyyyMMdd");
                     const dailyDuration = dailyDurations[dateKey] || {
-                      duration: 0,
+                      totalDuration: 0,
                       byProject: {},
                     };
 
@@ -148,7 +148,7 @@ export function YearlyActivityGraph({
                             className={cn(
                               "block h-3 w-3 rounded-sm hover:ring-2 hover:ring-ring",
                               getContributionColorClassName(
-                                dailyDuration.duration,
+                                dailyDuration.totalDuration,
                               ),
                             )}
                             data-date={dateKey}
@@ -159,7 +159,7 @@ export function YearlyActivityGraph({
                             <p className="font-semibold">
                               {format(day, "MMM d, yyyy")}
                             </p>
-                            <p>{formatDuration(dailyDuration.duration)}</p>
+                            <p>{formatDuration(dailyDuration.totalDuration)}</p>
                             <div className="mt-1 text-xs">
                               {getDailyProjectsDurations(dateKey)
                                 .split("\n")

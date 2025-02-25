@@ -45,16 +45,19 @@ export function WeeklyProjectHoursChart({
 
       const weekData = weeklyDurations[weekStartDateStr];
 
-      if (weekData) {
-        for (const projectName of Object.keys(weekData.byProject)) {
-          projectNames.add(projectName);
+      const chartData: Record<string, number> = {};
+
+      if (weekData?.byProject) {
+        for (const { project, duration } of Object.values(weekData.byProject)) {
+          projectNames.add(project);
+          chartData[project] = duration;
         }
       }
 
       return {
         weekStartDateStr: weekStartDateStr,
         shortWeekName: `Week ${getISOWeek(weekStartDate)}`,
-        ...weekData?.byProject,
+        ...chartData,
       };
     });
 

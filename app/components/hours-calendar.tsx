@@ -42,7 +42,7 @@ function calculateMonthlyTotal(
         !dailyDuration.hasNegativeDuration &&
         isSameMonth(parseISO(date), targetMonth),
     )
-    .reduce((total, [, durationItem]) => total + durationItem.duration, 0);
+    .reduce((total, [, durationItem]) => total + durationItem.totalDuration, 0);
 }
 
 function getHoursBadgeVariant(
@@ -52,7 +52,7 @@ function getHoursBadgeVariant(
   if (durationItem.hasNegativeDuration) {
     return "destructive";
   }
-  if (durationItem.duration === 0 || isSelected) {
+  if (durationItem.totalDuration === 0 || isSelected) {
     return "secondary";
   }
 
@@ -83,7 +83,7 @@ const HoursCalendar = ({
     const formattedMonth = format(selectedMonth, "yyyyMM");
     const formattedDate = format(cellDate, DATE_FORMAT);
     const durationItem = dailyDurations[formattedDate] || {
-      duration: 0,
+      totalDuration: 0,
     };
 
     const isToday = isSameDay(cellDate, new Date());
@@ -120,7 +120,7 @@ const HoursCalendar = ({
           >
             {durationItem.hasNegativeDuration
               ? "err"
-              : formatDuration(durationItem.duration)}
+              : formatDuration(durationItem.totalDuration)}
           </Badge>
         </div>
       </button>

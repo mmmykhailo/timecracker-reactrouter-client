@@ -29,16 +29,21 @@ export function MonthlyProjectHoursChart({
       const yearMonth = `${yearNumberStr}${monthNumberStr}`;
       const monthData = monthlyDurations[yearMonth];
 
-      if (monthData) {
-        for (const projectName of Object.keys(monthData.byProject)) {
-          projectNames.add(projectName);
+      const chartData: Record<string, number> = {};
+
+      if (monthData?.byProject) {
+        for (const { project, duration } of Object.values(
+          monthData.byProject,
+        )) {
+          projectNames.add(project);
+          chartData[project] = duration;
         }
       }
 
       return {
         yearMonth: yearMonth,
         shortMonthName: convertMonthStrToShortName(yearMonth),
-        ...monthData?.byProject,
+        ...chartData,
       };
     });
 
