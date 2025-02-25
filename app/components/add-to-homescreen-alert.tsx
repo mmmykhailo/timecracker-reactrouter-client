@@ -19,8 +19,8 @@ export function AddToHomescreenAlert() {
   }
 
   return (
-    <div className="p-4">
-      <Alert>
+    <div className="mt-4 px-4">
+      <Alert className="mx-auto max-w-3xl">
         <Download className="h-4 w-4" />
         <div className="flex justify-between">
           <div className="flex flex-col justify-center">

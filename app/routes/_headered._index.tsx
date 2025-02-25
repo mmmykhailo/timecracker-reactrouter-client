@@ -9,7 +9,6 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { get as idbGet, del as idbDel } from "idb-keyval";
 import { Button } from "~/components/ui/button";
-import { AppHeader } from "~/components/app-header";
 import HoursCalendar from "~/components/hours-calendar";
 import {
   calculateDailyDurations,
@@ -39,7 +38,6 @@ import { Separator } from "~/components/ui/separator";
 import { calculateDuration, formatDuration } from "~/lib/time-strings";
 import { cn } from "~/lib/utils";
 import { RefreshPageButton } from "~/components/refresh-page-button";
-import { AddToHomescreenAlert } from "~/components/add-to-homescreen-alert";
 
 export function meta() {
   return [
@@ -284,9 +282,7 @@ export default function Home() {
   useHotkeys("shift+space", handleAddNewEntryClick);
 
   return (
-    <div className="min-w-[640px]">
-      <AppHeader />
-      <AddToHomescreenAlert />
+    <>
       <div className="flex flex-1 flex-col gap-4 p-4 lg:grid lg:grid-cols-12">
         <div className="col-span-8 flex flex-col gap-4">
           <div className="flex flex-wrap justify-between gap-2">
@@ -423,6 +419,6 @@ export default function Home() {
         onClose={handleEntryFormClose}
         onUpdateReports={handleUpdateReports}
       />
-    </div>
+    </>
   );
 }
