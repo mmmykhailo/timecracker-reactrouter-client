@@ -44,7 +44,7 @@ export function DetailedTotals({
   className,
 }: DetailedTotalsProps) {
   const [selectedPeriodType, setSelectedPeriodType] =
-    useState<PeriodType>("daily");
+    useState<PeriodType>("monthly");
   const [selectedGroupType, setSelectedGroupType] =
     useState<GroupType>("project");
   const [selectedDate, setSelectedDate] = useState(new Date());
