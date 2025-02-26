@@ -2,6 +2,11 @@
 
 A stupidly simple timetracker.
 
+| Tracking page | Stats page |
+| ------------- | ------------- |
+| ![image](https://github.com/user-attachments/assets/d9b8e7e1-4967-42f3-9fe8-0a486fd6ec0d)  | ![image](https://github.com/user-attachments/assets/3edfa5aa-0797-48a0-a460-35578bb83122)  |
+
+
 ## Features
 
 - 🚀 Works fully offline after page load
