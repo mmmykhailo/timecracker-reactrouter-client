@@ -56,7 +56,7 @@ export function DetailedTotals({
     if (selectedPeriodType === "monthly") {
       return format(selectedDate, "MMM yyyy");
     }
-    return "";
+    return format(selectedDate, "PP");
   }, [selectedPeriodType, selectedDate]);
 
   const data = useMemo(() => {
