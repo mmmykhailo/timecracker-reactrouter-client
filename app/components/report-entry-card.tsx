@@ -63,37 +63,37 @@ export default function ReportEntryCard({
           <CopyableText>{description}</CopyableText>
         </div>
       </div>
-      <div className="flex shrink-0 flex-col items-end justify-between gap-1">
-        <div className="text-muted-foreground text-sm">
-          {start} - {end}
+      <div className="flex shrink-0 items-start justify-between gap-2">
+        <div className="pr-1 text-right">
+          <div className="text-muted-foreground text-sm">
+            {start} - {end}
+          </div>
+          <div className="text-muted-foreground text-sm">
+            <CopyableText>{formatDuration(duration)}</CopyableText>
+          </div>
         </div>
-        <div className="text-muted-foreground text-sm">
-          <CopyableText>{formatDuration(duration)}</CopyableText>
-        </div>
-        <div className="mt-1 flex gap-2">
-          <Button variant="outline" size="icon" onClick={onEditClick}>
-            <Edit size={12} />
-          </Button>
-          <Form method="POST" action="/?index">
-            <input type="hidden" name="intent" value="delete-entry" />
+        <Button variant="outline" size="icon" onClick={onEditClick}>
+          <Edit size={12} />
+        </Button>
+        <Form method="POST" action="/?index">
+          <input type="hidden" name="intent" value="delete-entry" />
+          <input
+            type="hidden"
+            name="entryIndex"
+            value={entryIndex.toString()}
+          />
+
+          {selectedDate && (
             <input
               type="hidden"
-              name="entryIndex"
-              value={entryIndex.toString()}
+              name="date"
+              value={format(selectedDate, "yyyyMMdd")}
             />
-
-            {selectedDate && (
-              <input
-                type="hidden"
-                name="date"
-                value={format(selectedDate, "yyyyMMdd")}
-              />
-            )}
-            <Button type="submit" variant="outline" size="icon">
-              <Trash size={12} />
-            </Button>
-          </Form>
-        </div>
+          )}
+          <Button type="submit" variant="outline" size="icon">
+            <Trash size={12} />
+          </Button>
+        </Form>
       </div>
     </div>
   );
