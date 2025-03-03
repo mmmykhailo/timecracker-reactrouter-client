@@ -2,7 +2,7 @@ import { RotateCw } from "lucide-react";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router";
 import { useState } from "react";
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/classNames";
 
 export function RefreshPageButton() {
   const navigate = useNavigate();

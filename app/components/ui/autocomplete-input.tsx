@@ -5,7 +5,7 @@ import {
   useState,
   type ComponentProps,
 } from "react";
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/classNames";
 import { Command, CommandInput, CommandItem, CommandList } from "./command";
 
 type AutocompleteInputProps = ComponentProps<typeof CommandInput> & {

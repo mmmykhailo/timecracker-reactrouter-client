@@ -10,7 +10,7 @@ import {
   parseISO,
 } from "date-fns";
 import { Button } from "./ui/button";
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/classNames";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "./ui/badge";
 import {

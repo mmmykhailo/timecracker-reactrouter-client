@@ -1,7 +1,7 @@
 import { ChevronLeft } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/classNames";
 import { buttonVariants } from "~/components/ui/button";
 import type { ComponentProps } from "react";
 

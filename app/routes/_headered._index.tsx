@@ -36,7 +36,7 @@ import { EntryFormSchema } from "~/lib/schema";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
 import { calculateDuration, formatDuration } from "~/lib/time-strings";
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/classNames";
 import { RefreshPageButton } from "~/components/refresh-page-button";
 
 export function meta() {

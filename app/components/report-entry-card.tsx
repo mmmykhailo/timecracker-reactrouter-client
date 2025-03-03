@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 import { Edit, Trash } from "lucide-react";
 import { Form, useFetcher } from "react-router";
 import { format } from "date-fns";
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/classNames";
 import { formatDuration } from "~/lib/time-strings";
 import CopyableText from "./ui/copyable-text";
 

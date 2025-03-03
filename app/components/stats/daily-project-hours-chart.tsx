@@ -5,7 +5,7 @@ import type { DailyDurations } from "~/lib/reports";
 import { shortMonthNames } from "~/lib/date-strings";
 import { Button } from "../ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/classNames";
 import { chartColors } from "~/lib/colors";
 import { HoursChartTooltip } from "./hours-chart-tooltip";
 import {

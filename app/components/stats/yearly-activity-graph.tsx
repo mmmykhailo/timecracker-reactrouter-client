@@ -9,7 +9,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { DailyDurations } from "~/lib/reports";
 import { useCallback, useMemo, useState } from "react";
 import { eachDayOfInterval, endOfYear, format, startOfYear } from "date-fns";
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/classNames";
 import { formatDuration } from "~/lib/time-strings";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 

@@ -21,7 +21,7 @@ import {
   useState,
   type KeyboardEvent,
 } from "react";
-import { cn } from "~/lib/utils";
+import { cn } from "~/lib/classNames";
 import { useTimeInput } from "~/hooks/use-time-input";
 import { formatTime } from "~/lib/time-strings";
 import type { clientAction } from "~/routes/_index";
