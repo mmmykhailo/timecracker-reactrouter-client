@@ -1,6 +1,7 @@
 import { Link, redirect, useNavigate } from "react-router";
 import { set as idbSet } from "idb-keyval";
 import { Button } from "~/components/ui/button";
+import { GithubLoginButton } from "~/components/auth/github-login-button";
 
 export function meta() {
   return [
@@ -22,7 +23,7 @@ export async function clientLoader() {
   };
 
   if (!isFilesystemApiSupported && checkIfInTopLevelWindow()) {
-    return redirect('/not-supported');
+    return redirect("/not-supported");
   }
 }
 
@@ -40,16 +41,24 @@ export default function WelcomePage() {
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-md">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-6">
             <div className="flex flex-col items-center gap-4">
               <img className="h-12 w-12" src="/logo.svg" alt="Timecracker" />
               <h1 className="font-bold text-xl">Welcome to Timecracker</h1>
             </div>
-            <Button type="submit" className="w-full" onClick={handleOpenFolder}>
-              Select folder
-            </Button>
+            <div className="flex flex-col gap-2">
+              <GithubLoginButton />
+              <div className="text-center text-sm">or</div>
+              <Button
+                type="submit"
+                className="w-full"
+                onClick={handleOpenFolder}
+              >
+                Select folder
+              </Button>
+            </div>
           </div>
           <div className="text-balance text-center text-muted-foreground text-xs [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary ">
             If don't have a timetracker folder yet, I strongly advise you to
@@ -57,7 +66,7 @@ export default function WelcomePage() {
             non-related.
             <br />
             <br />
-            By clicking "Select folder", you agree to my{" "}
+            By logging in or clicking "Select folder", you agree to my{" "}
             <Link to="/terms-and-conditions">Terms and Conditions</Link>.
           </div>
         </div>
