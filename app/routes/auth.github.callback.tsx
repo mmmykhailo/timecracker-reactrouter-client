@@ -1,4 +1,6 @@
-import { useLoaderData, type LoaderFunctionArgs } from "react-router";
+import { redirect, type LoaderFunctionArgs } from "react-router";
+import { getAuthGithubCallback } from "~/lib/http";
+import { commitSession, getSession } from "~/lib/sessions";
 
 const API_URL: string = import.meta.env.VITE_API_URL || "";
 
@@ -14,12 +16,27 @@ export async function loader({ request }: LoaderFunctionArgs) {
   url.searchParams.append("state", requestSearchParams.get("state") || "");
   url.searchParams.append("redirect_uri", baseRequestUrl.toString());
 
-  const response = await fetch(url);
+  const { error, data } = await getAuthGithubCallback({
+    query: {
+      code: requestSearchParams.get("code") || "",
+      state: requestSearchParams.get("state") || "",
+      redirect_uri: baseRequestUrl.toString(),
+    },
+  });
 
-  return { json: await response.json() };
-}
+  if (error || !data) {
+    return {
+      error: error.error,
+    };
+  }
 
-export default function AuthGithubCallbackPage() {
-  const { json } = useLoaderData<typeof loader>();
-  return <div>{JSON.stringify(json)}</div>;
+  const session = await getSession(request.headers.get("Cookie"));
+  session.set("accessToken", data.accessToken);
+  session.set("refreshToken", data.refreshToken);
+
+  return redirect("/profile", {
+    headers: {
+      "Set-Cookie": await commitSession(session),
+    },
+  });
 }

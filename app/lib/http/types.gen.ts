@@ -101,6 +101,7 @@ export type GetAuthGithubCallbackData = {
     query: {
         code: string;
         state: string;
+        redirect_uri: string;
     };
     url: '/auth/github/callback';
 };
