@@ -6,9 +6,11 @@
     "build": "cross-env NODE_ENV=production react-router build",
     "dev": "react-router dev",
     "start": "cross-env NODE_ENV=production react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "openapi-ts": "openapi-ts"
   },
   "dependencies": {
+    "@hey-api/client-fetch": "^0.8.3",
     "@radix-ui/react-dialog": "^1.1.5",
     "@radix-ui/react-label": "^2.1.1",
     "@radix-ui/react-popover": "^1.1.4",
@@ -42,6 +44,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "@hey-api/openapi-ts": "^0.64.9",
     "@react-router/dev": "^7.1.1",
     "@types/node": "^20",
     "@types/react": "^19.0.1",

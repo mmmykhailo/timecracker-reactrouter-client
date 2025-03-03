@@ -10,6 +10,11 @@ import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
 import ThemeProvider from "./providers/theme-provider";
 import { Toaster } from "./components/ui/sonner";
+import { client } from "./lib/http/client.gen";
+
+client.setConfig({
+  baseUrl: import.meta.env.VITE_API_URL,
+});
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },

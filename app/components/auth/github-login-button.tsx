@@ -1,5 +1,6 @@
 import { toast } from "sonner";
 import { Button } from "../ui/button";
+import { getAuthGithub } from "~/lib/http";
 
 const API_URL: string = import.meta.env.VITE_API_URL || "";
 const CLIENT_URL: string = import.meta.env.VITE_CLIENT_URL || "";
@@ -10,16 +11,18 @@ export function GithubLoginButton() {
 
     url.searchParams.set("redirect_uri", `${CLIENT_URL}/auth/github/callback`);
 
-    const response = await fetch(url.toString());
+    const { data, error } = await getAuthGithub({
+      query: {
+        redirect_uri: `${CLIENT_URL}/auth/github/callback`,
+      },
+    });
 
-    const json = await response.json();
-
-    if (!json?.url) {
+    if (error || !data?.url) {
       toast("Something went wrong, please try again later");
       return;
     }
 
-    window.location.href = json.url;
+    window.location.href = data.url;
   };
 
   return <Button onClick={handleGithubLoginClick}>Login with GitHub</Button>;
