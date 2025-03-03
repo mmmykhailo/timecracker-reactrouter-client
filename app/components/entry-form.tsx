@@ -24,7 +24,7 @@ import {
 import { cn } from "~/lib/classNames";
 import { useTimeInput } from "~/hooks/use-time-input";
 import { formatTime } from "~/lib/time-strings";
-import type { clientAction } from "~/routes/_index";
+import type { clientAction } from "~/routes/_headered._index";
 import { AutoCompleteInput } from "./ui/autocomplete-input";
 
 type EntryFormProps = {
