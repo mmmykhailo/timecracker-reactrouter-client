@@ -11,9 +11,9 @@ type ReportEntryCardProps = {
   isInvalid?: boolean;
   entry: ReportEntry;
   entryIndex: number;
-  selectedDate: Date;
+  selectedDate?: Date;
   className?: string;
-  onEditClick: () => void;
+  onEditClick?: () => void;
 };
 
 export default function ReportEntryCard({
@@ -72,28 +72,30 @@ export default function ReportEntryCard({
             <CopyableText>{formatDuration(duration)}</CopyableText>
           </div>
         </div>
-        <Button variant="outline" size="icon" onClick={onEditClick}>
-          <Edit size={12} />
-        </Button>
-        <Form method="POST" action="/?index">
-          <input type="hidden" name="intent" value="delete-entry" />
-          <input
-            type="hidden"
-            name="entryIndex"
-            value={entryIndex.toString()}
-          />
+        {!!onEditClick && (
+          <Button variant="outline" size="icon" onClick={onEditClick}>
+            <Edit size={12} />
+          </Button>
+        )}
+        {!!selectedDate && (
+          <Form method="POST" action="/?index">
+            <input type="hidden" name="intent" value="delete-entry" />
+            <input
+              type="hidden"
+              name="entryIndex"
+              value={entryIndex.toString()}
+            />
 
-          {selectedDate && (
             <input
               type="hidden"
               name="date"
               value={format(selectedDate, "yyyyMMdd")}
             />
-          )}
-          <Button type="submit" variant="outline" size="icon">
-            <Trash size={12} />
-          </Button>
-        </Form>
+            <Button type="submit" variant="outline" size="icon">
+              <Trash size={12} />
+            </Button>
+          </Form>
+        )}
       </div>
     </div>
   );
