@@ -3,7 +3,7 @@ import { Fragment } from "react/jsx-runtime";
 import ReportEntryCard from "~/components/report-entry-card";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/classNames";
-import { getReportEntries } from "~/lib/http";
+import { http } from "~/lib/http";
 import { getSession } from "~/lib/sessions";
 import { calculateDuration, formatDuration } from "~/lib/time-strings";
 
@@ -14,7 +14,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const headers = new Headers();
   headers.append("Authorization", `Bearer ${accessToken}`);
-  const { data, error } = await getReportEntries({
+  const { data, error } = await http.getReportEntries({
     headers,
   });
 

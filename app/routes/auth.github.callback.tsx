@@ -1,5 +1,5 @@
 import { redirect, type LoaderFunctionArgs } from "react-router";
-import { getAuthGithubCallback } from "~/lib/http";
+import { http } from "~/lib/http";
 import { commitSession, getSession } from "~/lib/sessions";
 
 const API_URL: string = import.meta.env.VITE_API_URL || "";
@@ -16,7 +16,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   url.searchParams.append("state", requestSearchParams.get("state") || "");
   url.searchParams.append("redirect_uri", baseRequestUrl.toString());
 
-  const { error, data } = await getAuthGithubCallback({
+  const { error, data } = await http.getAuthGithubCallback({
     query: {
       code: requestSearchParams.get("code") || "",
       state: requestSearchParams.get("state") || "",

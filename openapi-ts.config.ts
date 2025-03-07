@@ -2,6 +2,6 @@ import { defineConfig } from "@hey-api/openapi-ts";
 
 export default defineConfig({
   input: "http://localhost:3000/doc",
-  output: "app/lib/http",
+  output: "app/lib/http/codegen",
   plugins: ["@hey-api/client-fetch"],
 });

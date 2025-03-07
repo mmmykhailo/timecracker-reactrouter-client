@@ -1,18 +1,18 @@
 import {
-  isRouteErrorResponse,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  isRouteErrorResponse,
 } from "react-router";
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
-import ThemeProvider from "./providers/theme-provider";
 import { Toaster } from "./components/ui/sonner";
-import { client } from "./lib/http/client.gen";
+import { httpClient } from "./lib/http";
+import ThemeProvider from "./providers/theme-provider";
 
-client.setConfig({
+httpClient.setConfig({
   baseUrl: import.meta.env.VITE_API_URL,
 });
 
