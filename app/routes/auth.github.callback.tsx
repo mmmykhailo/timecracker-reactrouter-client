@@ -1,6 +1,9 @@
-import { redirect, type LoaderFunctionArgs } from "react-router";
-import { http } from "~/lib/http";
-import { commitSession, getSession } from "~/lib/sessions";
+import { type LoaderFunctionArgs, redirect } from "react-router";
+import { http } from "~/lib/http.server";
+import {
+  commitAuthSession,
+  getAuthSessionFromRequest,
+} from "~/lib/sessions.server";
 
 const API_URL: string = import.meta.env.VITE_API_URL || "";
 
@@ -30,13 +33,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     };
   }
 
-  const session = await getSession(request.headers.get("Cookie"));
+  const session = await getAuthSessionFromRequest(request);
   session.set("accessToken", data.accessToken);
   session.set("refreshToken", data.refreshToken);
 
   return redirect("/profile", {
     headers: {
-      "Set-Cookie": await commitSession(session),
+      "Set-Cookie": await commitAuthSession(session),
     },
   });
 }

@@ -9,12 +9,7 @@ import {
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
 import { Toaster } from "./components/ui/sonner";
-import { httpClient } from "./lib/http";
 import ThemeProvider from "./providers/theme-provider";
-
-httpClient.setConfig({
-  baseUrl: import.meta.env.VITE_API_URL,
-});
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },

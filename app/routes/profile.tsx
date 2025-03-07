@@ -1,42 +1,38 @@
-import { useLoaderData, type LoaderFunctionArgs } from "react-router";
+import { type LoaderFunctionArgs, data, useLoaderData } from "react-router";
 import { Fragment } from "react/jsx-runtime";
 import ReportEntryCard from "~/components/report-entry-card";
 import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/classNames";
-import { http } from "~/lib/http";
-import { getSession } from "~/lib/sessions";
+import { http, getAuthHeaders } from "~/lib/http.server";
 import { calculateDuration, formatDuration } from "~/lib/time-strings";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
-  const accessToken = session.get("accessToken");
-  const refreshToken = session.get("refreshToken");
+  const { requestHeaders } = await getAuthHeaders(request);
 
-  const headers = new Headers();
-  headers.append("Authorization", `Bearer ${accessToken}`);
-  const { data, error } = await http.getReportEntries({
-    headers,
+  const {
+    data: reportsResponse,
+    response: { status: responseStatus },
+  } = await http.getReports({
+    headers: requestHeaders,
   });
 
-  console.log(accessToken);
+  if (responseStatus === 401) {
+    console.log("unauthorized");
+  }
 
-  return { data };
+  return data({ reports: reportsResponse?.reports || [] });
 }
 
 export default function ProfilePage() {
-  const { data } = useLoaderData<typeof loader>();
-
-  if (!data) {
-    return "Invalid data";
-  }
+  const { reports } = useLoaderData<typeof loader>();
+  const entries = reports?.[0]?.entries;
 
   return (
     <div className="col-span-4 flex flex-col gap-4 p-4">
       <div>
-        {data.reportEntries.length ? (
-          data.reportEntries.map((reportEntry, i) => {
-            const prevReportEntry =
-              (i > 0 && data.reportEntries?.[i - 1]) || null;
+        {entries?.length ? (
+          entries.map((reportEntry, i) => {
+            const prevReportEntry = (i > 0 && entries[i - 1]) || null;
 
             const breakDuration =
               (prevReportEntry &&
