@@ -23,7 +23,6 @@ export async function getAuthHeaders(
   const refreshToken = authSession.get("refreshToken");
 
   if (!accessToken) {
-    console.log("no access token");
     return { requestHeaders: requestHeaders, responseHeaders: {} };
   }
 
@@ -43,7 +42,7 @@ export async function getAuthHeaders(
     });
 
     if (error) {
-      console.log("could not refresh", { error });
+      console.error("Could not refresh", { error });
       authSession.set("accessToken", undefined);
       authSession.set("refreshToken", undefined);
       return {
@@ -54,7 +53,6 @@ export async function getAuthHeaders(
       };
     }
 
-    console.log({ data });
     authSession.set("accessToken", data.accessToken);
     authSession.set("refreshToken", data.refreshToken);
 
@@ -67,7 +65,6 @@ export async function getAuthHeaders(
     };
   }
 
-  console.log("ok", accessToken);
   requestHeaders.append("Authorization", `Bearer ${accessToken}`);
   return { requestHeaders: requestHeaders, responseHeaders: {} };
 }

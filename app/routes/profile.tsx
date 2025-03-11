@@ -2,6 +2,7 @@ import { type LoaderFunctionArgs, data, useLoaderData } from "react-router";
 import { Fragment } from "react/jsx-runtime";
 import ReportEntryCard from "~/components/report-entry-card";
 import { Separator } from "~/components/ui/separator";
+import { logoutIfUnauthorized } from "~/lib/auth.server";
 import { cn } from "~/lib/classNames";
 import { http, getAuthHeaders } from "~/lib/http.server";
 import { calculateDuration, formatDuration } from "~/lib/time-strings";
@@ -16,9 +17,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     headers: requestHeaders,
   });
 
-  if (responseStatus === 401) {
-    console.log("unauthorized");
-  }
+  await logoutIfUnauthorized(responseStatus, request);
 
   return data({ reports: reportsResponse?.reports || [] });
 }
