@@ -262,6 +262,33 @@ export type PostReportsResponses = {
 
 export type PostReportsResponse = PostReportsResponses[keyof PostReportsResponses];
 
+export type GetReportByDateData = {
+    body?: never;
+    path: {
+        date: string;
+    };
+    query?: never;
+    url: '/reports/date/{date}';
+};
+
+export type GetReportByDateErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+};
+
+export type GetReportByDateResponses = {
+    /**
+     * Get report for current user by date
+     */
+    200: {
+        report: Report;
+    };
+};
+
+export type GetReportByDateResponse = GetReportByDateResponses[keyof GetReportByDateResponses];
+
 export type PatchReportsByIdData = {
     body: UnownedReportData;
     path: {
@@ -280,7 +307,7 @@ export type PatchReportsByIdErrors = {
 
 export type PatchReportsByIdResponses = {
     /**
-     * Create report
+     * Patch report
      */
     201: {
         report: Report;

@@ -37,7 +37,7 @@
     "react-day-picker": "9.5.1",
     "react-dom": "^19.0.0",
     "react-hotkeys-hook": "4.6.1",
-    "react-router": "^7.1.1",
+    "react-router": "^7.2.0",
     "recharts": "^2.15.0",
     "sonner": "^2.0.1",
     "tailwind-merge": "^2.6.0",
@@ -46,7 +46,7 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@hey-api/openapi-ts": "^0.64.9",
-    "@react-router/dev": "^7.1.1",
+    "@react-router/dev": "^7.2.0",
     "@types/bun": "^1.2.4",
     "@types/node": "^20",
     "@types/react": "^19.0.1",

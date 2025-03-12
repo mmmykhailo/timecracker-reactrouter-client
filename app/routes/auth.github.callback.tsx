@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { type LoaderFunctionArgs, redirect } from "react-router";
 import { http } from "~/lib/http.server";
 import {
@@ -37,7 +38,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   session.set("accessToken", data.accessToken);
   session.set("refreshToken", data.refreshToken);
 
-  return redirect("/profile", {
+  return redirect(`/o/${format(new Date(), "yyyyMMdd")}`, {
     headers: {
       "Set-Cookie": await commitAuthSession(session),
     },
