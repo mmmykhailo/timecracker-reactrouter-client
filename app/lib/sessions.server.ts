@@ -17,7 +17,7 @@ const { getSession, commitSession, destroySession } =
       name: "__session",
       httpOnly: true,
       sameSite: "lax",
-      maxAge: 60 * 1000 * 60 * 60,
+      maxAge: 60 * 1000 * 60 * 24 * 14,
       secrets: [process.env.SESSION_SECRET || "secret"],
       secure: true,
     },
