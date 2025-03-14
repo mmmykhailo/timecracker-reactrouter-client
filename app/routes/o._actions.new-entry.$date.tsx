@@ -42,7 +42,7 @@ function validateEntryForm(formData: FormData) {
 }
 
 export async function action({ request, params }: ActionFunctionArgs): Promise<{
-  errors: FlatErrors<undefined>;
+  errors: FlatErrors<undefined> | null;
 }> {
   const dateStr = params.date;
 
@@ -113,7 +113,7 @@ export async function action({ request, params }: ActionFunctionArgs): Promise<{
     };
   }
   return {
-    errors: {},
+    errors: null,
   };
 }
 

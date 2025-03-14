@@ -1,5 +1,11 @@
 import { format } from "date-fns";
-import { type KeyboardEvent, useCallback, useMemo, useRef } from "react";
+import {
+  type KeyboardEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { href, useFetcher } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -40,12 +46,20 @@ const EntryForm = ({
   const errors = fetcher.data?.errors;
   const entry = (entryIndex !== null && report?.entries?.[entryIndex]) || null;
   const date = useMemo(() => parseDateString(report.date), [report]);
+  const isFetcherIdleRef = useRef(fetcher.state === "idle");
 
   const [defaultStart, defaultEnd] = useDefaultTime(
     report.entries,
     date,
     entryIndex,
   );
+
+  useEffect(() => {
+    if (!isFetcherIdleRef.current && fetcher.state === "idle" && !errors) {
+      onClose();
+    }
+    isFetcherIdleRef.current = fetcher.state === "idle";
+  }, [fetcher.state, errors, onClose]);
 
   const handleDescriptionEnterPress = (
     e: KeyboardEvent<HTMLTextAreaElement>,
