@@ -12,12 +12,10 @@ export type ReportEntry = {
 };
 
 export type Report = {
-    _id: unknown;
-    ownerId: unknown;
+    _id: string;
+    ownerId: string;
     date: string;
     entries: Array<ReportEntry>;
-    createdAt: string;
-    updatedAt: string;
 };
 
 export type UnownedReportData = {
@@ -280,7 +278,7 @@ export type GetReportByDateErrors = {
 
 export type GetReportByDateResponses = {
     /**
-     * Get report for current user by date
+     * Get report by date
      */
     200: {
         report: Report;
@@ -289,7 +287,36 @@ export type GetReportByDateResponses = {
 
 export type GetReportByDateResponse = GetReportByDateResponses[keyof GetReportByDateResponses];
 
-export type PatchReportsByIdData = {
+export type PutReportByDateData = {
+    body: {
+        entries: Array<ReportEntry>;
+    };
+    path: {
+        date: string;
+    };
+    query?: never;
+    url: '/reports/date/{date}';
+};
+
+export type PutReportByDateErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+};
+
+export type PutReportByDateResponses = {
+    /**
+     * Put report by date
+     */
+    200: {
+        report: Report;
+    };
+};
+
+export type PutReportByDateResponse = PutReportByDateResponses[keyof PutReportByDateResponses];
+
+export type PutReportByIdData = {
     body: UnownedReportData;
     path: {
         id: string;
@@ -298,23 +325,23 @@ export type PatchReportsByIdData = {
     url: '/reports/{id}';
 };
 
-export type PatchReportsByIdErrors = {
+export type PutReportByIdErrors = {
     /**
      * Unauthorized
      */
     401: unknown;
 };
 
-export type PatchReportsByIdResponses = {
+export type PutReportByIdResponses = {
     /**
-     * Patch report
+     * Put report
      */
     201: {
         report: Report;
     };
 };
 
-export type PatchReportsByIdResponse = PatchReportsByIdResponses[keyof PatchReportsByIdResponses];
+export type PutReportByIdResponse = PutReportByIdResponses[keyof PutReportByIdResponses];
 
 export type ClientOptions = {
     baseUrl: 'http://localhost:3000' | (string & {});

@@ -15,9 +15,9 @@ export async function logoutIfUnauthorized(
     authSession.set("refreshToken", undefined);
 
     throw redirect("/welcome", {
-      headers: {
-        "Set-Cookie": await commitAuthSession(authSession),
-      },
+      // headers: {
+      //   "Set-Cookie": await commitAuthSession(authSession),
+      // },
     });
   }
 }

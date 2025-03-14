@@ -49,7 +49,14 @@ export default function OnlineReportPage() {
         </div>
       </div>
       <div className="col-span-4 flex flex-col gap-4">
-        <EntriesSection report={report} />
+        <EntriesSection
+          report={
+            report || {
+              date: dateStr,
+              entries: [],
+            }
+          }
+        />
       </div>
     </div>
   );

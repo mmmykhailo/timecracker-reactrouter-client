@@ -1,12 +1,6 @@
 import { format } from "date-fns";
-import {
-  type KeyboardEvent,
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { Form, useFetcher } from "react-router";
+import { type KeyboardEvent, useCallback, useMemo, useRef } from "react";
+import { href, useFetcher } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -15,6 +9,7 @@ import { useTimeInput } from "~/hooks/use-time-input";
 import { cn } from "~/lib/classNames";
 import { parseDateString } from "~/lib/date-strings";
 import type { Report } from "~/lib/http.server/codegen";
+import type { action } from "~/routes/o._actions.new-entry.$date";
 import { AutoCompleteInput } from "../ui/autocomplete-input";
 import {
   Dialog,
@@ -27,7 +22,7 @@ import {
 import { useDefaultTime } from "./use-default-time";
 
 type EntryFormProps = {
-  report: Report | null;
+  report: Pick<Report, "date" | "entries">;
   entryIndex: number | null;
   recentProjects: Array<string>;
   onClose: () => void;
@@ -41,16 +36,16 @@ const EntryForm = ({
 }: EntryFormProps) => {
   const { onChange: onTimeChange, onBlur: onTimeBlur } = useTimeInput();
   const submitButtonRef = useRef<HTMLButtonElement>(null);
-  const [isValidationStale, setIsValidationStale] = useState(true);
-  const fetcher = useFetcher();
-  const errors = isValidationStale ? null : fetcher.data?.entryFormErrors;
+  const fetcher = useFetcher<typeof action>({ key: "entry-form" });
+  const errors = fetcher.data?.errors;
   const entry = (entryIndex !== null && report?.entries?.[entryIndex]) || null;
-  const date = useMemo(
-    () => (report ? parseDateString(report.date) : null),
-    [report],
-  );
+  const date = useMemo(() => parseDateString(report.date), [report]);
 
-  const [defaultStart, defaultEnd] = useDefaultTime(report, date, entryIndex);
+  const [defaultStart, defaultEnd] = useDefaultTime(
+    report.entries,
+    date,
+    entryIndex,
+  );
 
   const handleDescriptionEnterPress = (
     e: KeyboardEvent<HTMLTextAreaElement>,
@@ -62,7 +57,6 @@ const EntryForm = ({
   };
 
   const handleClose = useCallback(() => {
-    setIsValidationStale(true);
     onClose();
   }, [onClose]);
 
@@ -96,13 +90,13 @@ const EntryForm = ({
             Write down stuff you want to track
           </DialogDescription>
         </DialogHeader>
-        <Form
+        <fetcher.Form
           className="flex flex-col gap-6"
-          action="/?index"
+          action={href("/o/new-entry/:date", {
+            date: report.date,
+          })}
           method="POST"
-          onSubmit={() => setIsValidationStale(false)}
         >
-          <input type="hidden" name="intent" value="edit-entry" />
           <input type="hidden" name="date" value={format(date, "yyyyMMdd")} />
           {entryIndex !== null && (
             <input type="hidden" name="entryIndex" value={entryIndex} />
@@ -211,8 +205,13 @@ const EntryForm = ({
             <Button ref={submitButtonRef} type="submit">
               Save changes
             </Button>
+            {!!errors?.nested?.unknown?.[0] && (
+              <div className="mt-1 text-destructive">
+                {errors?.nested?.unknown?.[0]}
+              </div>
+            )}
           </DialogFooter>
-        </Form>
+        </fetcher.Form>
       </DialogContent>
     </Dialog>
   );

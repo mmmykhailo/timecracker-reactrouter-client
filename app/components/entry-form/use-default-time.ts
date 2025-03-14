@@ -1,20 +1,20 @@
 import { isToday } from "date-fns";
 import { useMemo } from "react";
-import type { Report } from "~/lib/http.server/codegen";
+import type { ReportEntry } from "~/lib/http.server/codegen";
 import { formatTime } from "~/lib/time-strings";
 
 export function useDefaultTime(
-  report: Report | null,
-  date: Date | null,
+  entries: Array<ReportEntry>,
+  date: Date,
   entryIndex: number | null = null,
 ) {
   return useMemo(() => {
-    if (!report || !date) {
+    if (!entries || !date) {
       return ["", ""];
     }
 
     const prevEntry =
-      (entryIndex !== null && report?.entries?.[entryIndex - 1]) || null;
+      (entryIndex !== null && entries?.[entryIndex - 1]) || null;
 
     if (!isToday(date)) {
       return [prevEntry?.time.end || "", ""];
@@ -32,5 +32,5 @@ export function useDefaultTime(
       prevEntry?.time.end || formatTime(hours, floorMinutes),
       formatTime(ceilHours, ceilMinutes),
     ];
-  }, [entryIndex, report, date]);
+  }, [entryIndex, entries, date]);
 }

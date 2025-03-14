@@ -1,10 +1,12 @@
 import { jwtDecode } from "jwt-decode";
+import { logoutIfUnauthorized } from "../auth.server";
 import {
   commitAuthSession,
   getAuthSessionFromRequest,
 } from "../sessions.server";
 import * as http from "./codegen";
 import { client as httpClient } from "./codegen/client.gen";
+import type { ApiCallMethod } from "./types";
 
 httpClient.setConfig({
   baseUrl: process.env.VITE_API_URL,
@@ -12,9 +14,9 @@ httpClient.setConfig({
 
 export async function getAuthHeaders(
   request: Request,
-  requestHeaders: Headers = new Headers(),
+  requestHeaders: Record<string, string> = {},
 ): Promise<{
-  requestHeaders: Headers;
+  requestHeaders: Record<string, string>;
   responseHeaders: HeadersInit;
 }> {
   const authSession = await getAuthSessionFromRequest(request);
@@ -56,7 +58,7 @@ export async function getAuthHeaders(
     authSession.set("accessToken", data.accessToken);
     authSession.set("refreshToken", data.refreshToken);
 
-    requestHeaders.append("Authorization", `Bearer ${accessToken}`);
+    requestHeaders.Authorization = `Bearer ${accessToken}`;
     return {
       requestHeaders: requestHeaders,
       responseHeaders: {
@@ -65,8 +67,24 @@ export async function getAuthHeaders(
     };
   }
 
-  requestHeaders.append("Authorization", `Bearer ${accessToken}`);
+  requestHeaders.Authorization = `Bearer ${accessToken}`;
   return { requestHeaders: requestHeaders, responseHeaders: {} };
+}
+
+export async function performAuthenticatedRequest<
+  T extends ReturnType<ApiCallMethod>,
+>(request: Request, result: T): Promise<Awaited<T>> {
+  const awaitedResult = await result;
+  const {
+    data,
+    response: { status: responseStatus },
+  } = awaitedResult;
+
+  console.log(data, responseStatus);
+
+  await logoutIfUnauthorized(responseStatus, request);
+
+  return awaitedResult;
 }
 
 export { http, httpClient };
