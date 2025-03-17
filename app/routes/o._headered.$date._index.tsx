@@ -7,9 +7,9 @@ import {
 import DateControls from "~/components/date-controls";
 import { EntriesSection } from "~/components/entries-section";
 import { RefreshPageButton } from "~/components/refresh-page-button";
-import { logoutIfUnauthorized } from "~/lib/auth.server";
+import { getAuthHeaders, logoutIfUnauthorized } from "~/lib/auth.server";
 import { parseDateString } from "~/lib/date-strings";
-import { http, getAuthHeaders } from "~/lib/http.server";
+import { http } from "~/lib/http.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const dateStr = params.date;
@@ -18,7 +18,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw redirect("/");
   }
 
-  const { requestHeaders } = await getAuthHeaders(request);
+  const { requestHeaders, responseHeaders } = await getAuthHeaders(request);
 
   const {
     data: reportResponse,
@@ -32,7 +32,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   await logoutIfUnauthorized(responseStatus, request);
 
-  return data({ report: reportResponse?.report, dateStr });
+  return data(
+    { report: reportResponse?.report, dateStr },
+    {
+      headers: responseHeaders,
+    },
+  );
 }
 
 export default function OnlineReportPage() {

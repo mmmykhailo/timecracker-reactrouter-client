@@ -39,7 +39,7 @@ export type PostAuthRegisterErrors = {
      * Invalid input or username already exists
      */
     400: {
-        error?: string;
+        message?: string;
     };
 };
 
@@ -76,7 +76,7 @@ export type PostAuthLoginErrors = {
      * Invalid credentials
      */
     401: {
-        error?: string;
+        message?: string;
     };
 };
 
@@ -134,7 +134,7 @@ export type GetAuthGithubCallbackErrors = {
      * Invalid state or code
      */
     400: {
-        error?: string;
+        message?: string;
     };
 };
 
@@ -170,7 +170,7 @@ export type PostAuthRefreshErrors = {
      * Invalid refresh token
      */
     401: {
-        error?: string;
+        message?: string;
     };
 };
 

@@ -1,13 +1,11 @@
-import type {
-  ActionFunctionArgs,
-  ClientActionFunctionArgs,
+import {
+  type ActionFunctionArgs,
+  type ClientActionFunctionArgs,
+  data,
 } from "react-router";
 import { type FlatErrors, flatten, safeParse } from "valibot";
-import {
-  http,
-  getAuthHeaders,
-  performAuthenticatedRequest,
-} from "~/lib/http.server";
+import { getAuthHeaders } from "~/lib/auth.server";
+import { http, performAuthenticatedRequest } from "~/lib/http.server";
 import type {
   Report,
   ReportEntry,
@@ -41,9 +39,7 @@ function validateEntryForm(formData: FormData) {
   return { parsedEntryFormData };
 }
 
-export async function action({ request, params }: ActionFunctionArgs): Promise<{
-  errors: FlatErrors<undefined> | null;
-}> {
+export async function action({ request, params }: ActionFunctionArgs) {
   const dateStr = params.date;
 
   if (!dateStr) {
@@ -53,12 +49,14 @@ export async function action({ request, params }: ActionFunctionArgs): Promise<{
     });
   }
 
+  const { requestHeaders, responseHeaders } = await getAuthHeaders(request);
+
   const body = await request.formData();
 
   const { errors, parsedEntryFormData } = validateEntryForm(body);
 
   if (errors) {
-    return { errors };
+    return data({ errors }, { headers: responseHeaders });
   }
 
   const entry: ReportEntry = {
@@ -73,8 +71,6 @@ export async function action({ request, params }: ActionFunctionArgs): Promise<{
     activity: parsedEntryFormData.output.activity || null,
     description: parsedEntryFormData.output.description,
   };
-
-  const { requestHeaders } = await getAuthHeaders(request);
 
   const { data: getReportResponse } = await performAuthenticatedRequest(
     request,
@@ -104,13 +100,19 @@ export async function action({ request, params }: ActionFunctionArgs): Promise<{
   );
 
   if (!putReportResponse) {
-    return {
-      errors: {
-        nested: {
-          unknown: ["Unknown error"],
-        },
+    const errors: FlatErrors<undefined> = {
+      nested: {
+        unknown: ["Unknown error"],
       },
     };
+    return data(
+      {
+        errors,
+      },
+      {
+        headers: responseHeaders,
+      },
+    );
   }
   return {
     errors: null,
