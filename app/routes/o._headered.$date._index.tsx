@@ -6,6 +6,7 @@ import {
 } from "react-router";
 import DateControls from "~/components/date-controls";
 import { EntriesSection } from "~/components/entries-section";
+import HoursCalendar from "~/components/hours-calendar";
 import { RefreshPageButton } from "~/components/refresh-page-button";
 import { getAuthHeaders, logoutIfUnauthorized } from "~/lib/auth.server";
 import { parseDateString } from "~/lib/date-strings";
@@ -51,6 +52,9 @@ export default function OnlineReportPage() {
         <div className="flex flex-wrap justify-between gap-2">
           <RefreshPageButton />
           <DateControls selectedDate={date} />
+        </div>
+        <div className="rounded-xl border p-4">
+          <HoursCalendar selectedDate={date} dailyDurations={{}} />
         </div>
       </div>
       <div className="col-span-4 flex flex-col gap-4">

@@ -1,33 +1,32 @@
-import { useMemo, type Dispatch, type SetStateAction } from "react";
 import {
-  format,
-  startOfWeek,
   addDays,
-  startOfMonth,
   endOfMonth,
+  format,
   isSameDay,
   isSameMonth,
   parseISO,
+  startOfMonth,
+  startOfWeek,
 } from "date-fns";
-import { Button } from "./ui/button";
-import { cn } from "~/lib/classNames";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Badge } from "./ui/badge";
+import { useMemo, useState } from "react";
+import { Link, href } from "react-router";
+import { cn } from "~/lib/classNames";
+import { formatDateString } from "~/lib/date-strings";
 import {
   DATE_FORMAT,
   type DailyDurations,
   type DailyDurationsItem,
 } from "~/lib/reports";
 import { formatDuration } from "~/lib/time-strings";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 import CopyableText from "./ui/copyable-text";
 
 type HoursCalendarProps = {
   isCompact?: boolean;
   dailyDurations: DailyDurations;
   selectedDate: Date;
-  setSelectedDate: (date: Date) => void;
-  selectedMonth: Date;
-  setSelectedMonth: Dispatch<SetStateAction<Date>>;
 };
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -63,10 +62,9 @@ const HoursCalendar = ({
   isCompact,
   dailyDurations,
   selectedDate,
-  setSelectedDate,
-  selectedMonth,
-  setSelectedMonth,
 }: HoursCalendarProps) => {
+  const [selectedMonth, setSelectedMonth] = useState(selectedDate);
+
   const getDaysInMonth = (date: Date) => {
     const startDate = startOfMonth(date);
     const endDate = endOfMonth(date);
@@ -91,10 +89,11 @@ const HoursCalendar = ({
     const isSelectedMonth = isSameMonth(selectedMonth, cellDate);
 
     return (
-      <button
-        onClick={() => setSelectedDate(cellDate)}
+      <Link
+        to={href("/o/:date", {
+          date: formatDateString(cellDate),
+        })}
         key={`${formattedDate}-${formattedMonth}`}
-        type="button"
         className={cn(
           "flex cursor-pointer flex-wrap gap-2 p-2 transition-colors hover:bg-black/30",
           "border-b outline-offset-2 focus-visible:z-10",
@@ -123,7 +122,7 @@ const HoursCalendar = ({
               : formatDuration(durationItem.totalDuration)}
           </Badge>
         </div>
-      </button>
+      </Link>
     );
   };
 
@@ -175,7 +174,7 @@ const HoursCalendar = ({
   );
 
   return (
-    <div className="mx-auto p-4">
+    <div>
       <div className="flex justify-between">
         <div className="mb-6 flex flex-col space-y-1.5">
           <div className="font-semibold leading-none tracking-tight">

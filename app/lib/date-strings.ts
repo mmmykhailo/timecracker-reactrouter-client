@@ -15,6 +15,10 @@ export const shortMonthNames = [
   "Dec",
 ];
 
+export const formatDateString = (date: Date) => {
+  return format(date, "yyyyMMdd");
+};
+
 export const parseDateString = (dateStr: string): Date => {
   const year = dateStr.slice(0, 4);
   const month = dateStr.slice(4, 6);
@@ -23,7 +27,7 @@ export const parseDateString = (dateStr: string): Date => {
 };
 
 export function getWeekStartDateString(date: Date) {
-  return format(startOfWeek(date, { weekStartsOn: 1 }), "yyyyMMdd");
+  return formatDateString(startOfWeek(date, { weekStartsOn: 1 }));
 }
 
 export function convertMonthStrToShortName(monthStr: string) {
