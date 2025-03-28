@@ -1,7 +1,7 @@
-import { Link, redirect, useNavigate } from "react-router";
 import { set as idbSet } from "idb-keyval";
-import { Button } from "~/components/ui/button";
+import { Link, useNavigate } from "react-router";
 import { GithubLoginButton } from "~/components/auth/github-login-button";
+import { Button } from "~/components/ui/button";
 
 export function meta() {
   return [
@@ -10,22 +10,22 @@ export function meta() {
   ];
 }
 
-export async function clientLoader() {
-  const isFilesystemApiSupported = "showDirectoryPicker" in window;
+// export async function clientLoader() {
+//   const isFilesystemApiSupported = "showDirectoryPicker" in window;
 
-  // top level window means not in iframe
-  const checkIfInTopLevelWindow = () => {
-    try {
-      return window.self === window.top;
-    } catch (error) {
-      return false;
-    }
-  };
+//   // top level window means not in iframe
+//   const checkIfInTopLevelWindow = () => {
+//     try {
+//       return window.self === window.top;
+//     } catch (error) {
+//       return false;
+//     }
+//   };
 
-  if (!isFilesystemApiSupported && checkIfInTopLevelWindow()) {
-    return redirect("/not-supported");
-  }
-}
+//   if (!isFilesystemApiSupported && checkIfInTopLevelWindow()) {
+//     return redirect("/not-supported");
+//   }
+// }
 
 export default function WelcomePage() {
   const navigate = useNavigate();
