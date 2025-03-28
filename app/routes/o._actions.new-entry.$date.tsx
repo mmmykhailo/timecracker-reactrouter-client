@@ -14,8 +14,9 @@ import type {
 import { EntryFormSchema } from "~/lib/schema";
 import { parseTimeIntoMinutes } from "~/lib/time-strings";
 
-function validateEntryForm(formData: FormData) {
+function validateEntryForm(formData: FormData, dateStr: string) {
   const entryFormData = {
+    dateStr: dateStr,
     time: {
       start: formData.get("start")?.toString(),
       end: formData.get("end")?.toString(),
@@ -24,7 +25,6 @@ function validateEntryForm(formData: FormData) {
     activity: formData.get("activity")?.toString(),
     description: formData.get("description")?.toString(),
     reportId: formData.get("reportId")?.toString(),
-    date: formData.get("date")?.toString(),
     entryIndex: formData.get("entryIndex")?.toString(),
   };
 
@@ -42,22 +42,26 @@ function validateEntryForm(formData: FormData) {
 export async function action({ request, params }: ActionFunctionArgs) {
   const dateStr = params.date;
 
+  console.log({ dateStr });
+
   if (!dateStr) {
     throw new Response(null, {
       status: 404,
       statusText: "Not Found",
     });
   }
-
   const { requestHeaders, responseHeaders } = await getAuthHeaders(request);
 
   const body = await request.formData();
 
-  const { errors, parsedEntryFormData } = validateEntryForm(body);
+  const { errors, parsedEntryFormData } = validateEntryForm(body, dateStr);
 
   if (errors) {
+    console.log({ errors });
     return data({ errors }, { headers: responseHeaders });
   }
+
+  console.log({ parsedEntryFormData });
 
   const entry: ReportEntry = {
     time: {
@@ -77,23 +81,29 @@ export async function action({ request, params }: ActionFunctionArgs) {
     http.getReportByDate({
       headers: requestHeaders,
       path: {
-        date: dateStr,
+        date: parsedEntryFormData.output.dateStr,
       },
     }),
   );
 
   const report: Report | UnownedReportData = getReportResponse?.report || {
-    date: dateStr,
+    date: parsedEntryFormData.output.dateStr,
     entries: [],
   };
   report.entries.push(entry);
+
+  console.log(
+    "REPORT",
+    { report },
+    { dateStr: parsedEntryFormData.output.dateStr },
+  );
 
   const { data: putReportResponse } = await performAuthenticatedRequest(
     request,
     http.putReportByDate({
       headers: requestHeaders,
       path: {
-        date: dateStr,
+        date: parsedEntryFormData.output.dateStr,
       },
       body: report,
     }),
@@ -121,11 +131,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export async function clientAction({
   request,
+  params,
   serverAction,
 }: ClientActionFunctionArgs) {
+  const date = params.date;
+
+  if (!date) {
+    throw new Response(null, {
+      status: 404,
+      statusText: "Not Found",
+    });
+  }
+
   const body = await request.clone().formData();
 
-  const { errors } = validateEntryForm(body);
+  const { errors } = validateEntryForm(body, date);
 
   if (errors) {
     return { errors };

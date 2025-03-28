@@ -8,10 +8,10 @@ import {
   parseISO,
   startOfWeek,
 } from "date-fns";
-import { safeParse, type RegexIssue, type StringIssue } from "valibot";
-import { TimeSchema, type TimeIssue } from "./schema";
+import { type RegexIssue, type StringIssue, safeParse } from "valibot";
+import { getWeekStartDateString, parseDateString } from "./date-utils";
+import { type TimeIssue, TimeSchema } from "./schema";
 import { calculateDuration, parseTimeIntoMinutes } from "./time-strings";
-import { getWeekStartDateString, parseDateString } from "./date-strings";
 
 export const TIMEREPORT_FILENAME_PREFIX = "timereport - ";
 export const WEEK_DIR_NAME_REGEX = /^week (\d{2})$/i;

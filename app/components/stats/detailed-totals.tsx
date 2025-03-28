@@ -1,4 +1,16 @@
+import { format, getISOWeek, getYear } from "date-fns";
+import { Fragment, useMemo, useState } from "react";
 import { cn } from "~/lib/classNames";
+import { getWeekStartDateString } from "~/lib/date-utils";
+import type {
+  DailyDurations,
+  GroupedDuration,
+  MonthlyDurations,
+  WeeklyDurations,
+} from "~/lib/reports";
+import { formatDuration } from "~/lib/time-strings";
+import { DatePicker } from "../ui/date-picker";
+import { Label } from "../ui/label";
 import {
   Select,
   SelectContent,
@@ -6,18 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Label } from "../ui/label";
-import { Fragment, useMemo, useState } from "react";
-import type {
-  DailyDurations,
-  GroupedDuration,
-  MonthlyDurations,
-  WeeklyDurations,
-} from "~/lib/reports";
-import { DatePicker } from "../ui/date-picker";
-import { format, getISOWeek, getYear } from "date-fns";
-import { getWeekStartDateString } from "~/lib/date-strings";
-import { formatDuration } from "~/lib/time-strings";
 import {
   Table,
   TableBody,

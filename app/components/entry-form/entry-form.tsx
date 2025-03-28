@@ -1,4 +1,3 @@
-import { format } from "date-fns";
 import {
   type KeyboardEvent,
   useCallback,
@@ -13,7 +12,7 @@ import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 import { useTimeInput } from "~/hooks/use-time-input";
 import { cn } from "~/lib/classNames";
-import { parseDateString } from "~/lib/date-strings";
+import { formatDateString } from "~/lib/date-utils";
 import type { Report } from "~/lib/http.server/codegen";
 import type { action } from "~/routes/o._actions.new-entry.$date";
 import { AutoCompleteInput } from "../ui/autocomplete-input";
@@ -45,7 +44,7 @@ const EntryForm = ({
   const fetcher = useFetcher<typeof action>({ key: "entry-form" });
   const errors = fetcher.data?.errors;
   const entry = (entryIndex !== null && report?.entries?.[entryIndex]) || null;
-  const date = useMemo(() => parseDateString(report.date), [report]);
+  const date = useMemo(() => new Date(report.date), [report]);
   const isFetcherIdleRef = useRef(fetcher.state === "idle");
 
   const [defaultStart, defaultEnd] = useDefaultTime(
@@ -87,6 +86,8 @@ const EntryForm = ({
     return null;
   }
 
+  console.log(report.date);
+
   return (
     <Dialog
       open={entryIndex !== null}
@@ -107,11 +108,10 @@ const EntryForm = ({
         <fetcher.Form
           className="flex flex-col gap-6"
           action={href("/o/new-entry/:date", {
-            date: report.date,
+            date: formatDateString(new Date(report.date)),
           })}
           method="POST"
         >
-          <input type="hidden" name="date" value={format(date, "yyyyMMdd")} />
           {entryIndex !== null && (
             <input type="hidden" name="entryIndex" value={entryIndex} />
           )}

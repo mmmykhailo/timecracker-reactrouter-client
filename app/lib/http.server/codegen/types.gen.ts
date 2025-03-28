@@ -15,12 +15,21 @@ export type Report = {
     _id: string;
     ownerId: string;
     date: string;
+    duration: number;
     entries: Array<ReportEntry>;
 };
 
 export type UnownedReportData = {
     date: string;
-    entries: Array<ReportEntry>;
+    entries: Array<{
+        time: {
+            start: string;
+            end: string;
+        };
+        project: string;
+        activity: string | null;
+        description: string;
+    }>;
 };
 
 export type PostAuthRegisterData = {
@@ -289,7 +298,15 @@ export type GetReportByDateResponse = GetReportByDateResponses[keyof GetReportBy
 
 export type PutReportByDateData = {
     body: {
-        entries: Array<ReportEntry>;
+        entries: Array<{
+            time: {
+                start: string;
+                end: string;
+            };
+            project: string;
+            activity: string | null;
+            description: string;
+        }>;
     };
     path: {
         date: string;
@@ -342,6 +359,38 @@ export type PutReportByIdResponses = {
 };
 
 export type PutReportByIdResponse = PutReportByIdResponses[keyof PutReportByIdResponses];
+
+export type GetReportsDailyDurationsData = {
+    body?: never;
+    path?: never;
+    query: {
+        from: string;
+        to: string;
+    };
+    url: '/reports/daily-durations';
+};
+
+export type GetReportsDailyDurationsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+};
+
+export type GetReportsDailyDurationsResponses = {
+    /**
+     * Get daily durations
+     */
+    200: {
+        dailyDurations: {
+            [key: string]: {
+                totalDuration: number;
+            };
+        };
+    };
+};
+
+export type GetReportsDailyDurationsResponse = GetReportsDailyDurationsResponses[keyof GetReportsDailyDurationsResponses];
 
 export type ClientOptions = {
     baseUrl: 'http://localhost:3000' | (string & {});

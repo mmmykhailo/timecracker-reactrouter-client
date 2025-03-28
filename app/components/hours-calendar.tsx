@@ -4,7 +4,6 @@ import {
   format,
   isSameDay,
   isSameMonth,
-  parseISO,
   startOfMonth,
   startOfWeek,
 } from "date-fns";
@@ -12,16 +11,20 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, href } from "react-router";
 import { cn } from "~/lib/classNames";
-import { formatDateString } from "~/lib/date-strings";
-import {
-  DATE_FORMAT,
-  type DailyDurations,
-  type DailyDurationsItem,
-} from "~/lib/reports";
+import { formatDateString, parseDateString } from "~/lib/date-utils";
+import { DATE_FORMAT } from "~/lib/reports";
 import { formatDuration } from "~/lib/time-strings";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import CopyableText from "./ui/copyable-text";
+
+type DailyDurations = Record<
+  string,
+  {
+    totalDuration: number;
+    hasNegativeDuration?: boolean;
+  }
+>;
 
 type HoursCalendarProps = {
   isCompact?: boolean;
@@ -39,13 +42,16 @@ function calculateMonthlyTotal(
     .filter(
       ([date, dailyDuration]) =>
         !dailyDuration.hasNegativeDuration &&
-        isSameMonth(parseISO(date), targetMonth),
+        isSameMonth(parseDateString(date), targetMonth),
     )
     .reduce((total, [, durationItem]) => total + durationItem.totalDuration, 0);
 }
 
 function getHoursBadgeVariant(
-  durationItem: DailyDurationsItem,
+  durationItem: {
+    totalDuration: number;
+    hasNegativeDuration?: boolean;
+  },
   isSelected?: boolean,
 ) {
   if (durationItem.hasNegativeDuration) {

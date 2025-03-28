@@ -1,12 +1,12 @@
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-import { useMemo, useState } from "react";
-import { ChartContainer, ChartTooltip } from "~/components/ui/chart";
-import type { MonthlyDurations } from "~/lib/reports";
-import { convertMonthStrToShortName } from "~/lib/date-strings";
-import { Button } from "../ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { ChartContainer, ChartTooltip } from "~/components/ui/chart";
 import { cn } from "~/lib/classNames";
 import { chartColors } from "~/lib/colors";
+import { convertMonthStrToShortName } from "~/lib/date-utils";
+import type { MonthlyDurations } from "~/lib/reports";
+import { Button } from "../ui/button";
 import { HoursChartTooltip } from "./hours-chart-tooltip";
 
 type MonthlyProjectHoursChartProps = {

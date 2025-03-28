@@ -23,7 +23,7 @@ export const TimeSchema = pipe(
 
 export type TimeIssue = InferIssue<typeof TimeSchema>;
 
-export const DateSchema = pipe(
+export const DateStrSchema = pipe(
   string(),
   regex(
     /^\d{4}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$/,
@@ -52,7 +52,7 @@ export const EntryFormSchema = pipe(
     ),
     activity: optional(pipe(string(), trim(), maxLength(32))),
     description: pipe(string(), trim(), minLength(1), maxLength(256)),
-    date: DateSchema,
+    dateStr: DateStrSchema,
     entryIndex: pipe(
       string(),
       regex(/^\d+$/, "Entry index must be a string with a number"),

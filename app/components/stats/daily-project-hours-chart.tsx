@@ -1,13 +1,3 @@
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-import { useMemo, useState } from "react";
-import { ChartContainer, ChartTooltip } from "~/components/ui/chart";
-import type { DailyDurations } from "~/lib/reports";
-import { shortMonthNames } from "~/lib/date-strings";
-import { Button } from "../ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { cn } from "~/lib/classNames";
-import { chartColors } from "~/lib/colors";
-import { HoursChartTooltip } from "./hours-chart-tooltip";
 import {
   addMonths,
   eachDayOfInterval,
@@ -18,6 +8,16 @@ import {
   getYear,
   startOfMonth,
 } from "date-fns";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { ChartContainer, ChartTooltip } from "~/components/ui/chart";
+import { cn } from "~/lib/classNames";
+import { chartColors } from "~/lib/colors";
+import { shortMonthNames } from "~/lib/date-utils";
+import type { DailyDurations } from "~/lib/reports";
+import { Button } from "../ui/button";
+import { HoursChartTooltip } from "./hours-chart-tooltip";
 
 type DailyProjectHoursChartProps = {
   dailyDurations: DailyDurations;
