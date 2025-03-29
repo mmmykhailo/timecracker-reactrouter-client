@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   type LoaderFunctionArgs,
   data,
@@ -14,9 +14,11 @@ import { RefreshPageButton } from "~/components/refresh-page-button";
 import { getAuthHeaders, logoutIfUnauthorized } from "~/lib/auth.server";
 import {
   endOfMonth,
+  endOfWeek,
   formatDateString,
   parseDateString,
   startOfMonth,
+  startOfWeek,
 } from "~/lib/date-utils";
 import { http } from "~/lib/http.server";
 import type { loader as dailyDurationsLoader } from "./o._actions.daily-durations";
@@ -53,23 +55,32 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export default function OnlineReportPage() {
   const { report, dateStr } = useLoaderData<typeof loader>();
   const dailyDurationsFetcher = useFetcher<typeof dailyDurationsLoader>();
-  const isLoaded = useRef(false);
+  const loadedMonthTimestamp = useRef(0);
 
   console.log({ report, dateStr });
 
-  const date = parseDateString(dateStr);
+  const date = useMemo(() => parseDateString(dateStr), [dateStr]);
+  const [startOfMonthTimestamp, setStartOfMonthTimestamp] = useState(
+    startOfMonth(date).getTime(),
+  );
 
   useEffect(() => {
-    if (!isLoaded.current) {
+    if (loadedMonthTimestamp.current !== startOfMonthTimestamp) {
       const url = href("/o/daily-durations");
       const searchParams = new URLSearchParams();
-      searchParams.append("from", formatDateString(startOfMonth(date)));
-      searchParams.append("to", formatDateString(endOfMonth(date)));
+
+      const startOfMonthDate = new Date(startOfMonthTimestamp);
+
+      const fromDate = startOfWeek(startOfMonthDate);
+      const toDate = endOfWeek(endOfMonth(startOfMonthDate));
+
+      searchParams.append("from", formatDateString(fromDate));
+      searchParams.append("to", formatDateString(toDate));
 
       dailyDurationsFetcher.load(`${url}?${searchParams.toString()}`);
-      isLoaded.current = true;
+      loadedMonthTimestamp.current = startOfMonthTimestamp;
     }
-  }, [dailyDurationsFetcher, date]);
+  }, [dailyDurationsFetcher, startOfMonthTimestamp]);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 lg:grid lg:grid-cols-12">
@@ -81,6 +92,10 @@ export default function OnlineReportPage() {
         <div className="rounded-xl border p-4">
           <HoursCalendar
             selectedDate={date}
+            selectedMonth={new Date(startOfMonthTimestamp)}
+            setSelectedMonth={(date) =>
+              setStartOfMonthTimestamp(date.getTime())
+            }
             dailyDurations={dailyDurationsFetcher.data || {}}
           />
         </div>

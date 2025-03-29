@@ -1,8 +1,10 @@
 import { utc } from "@date-fns/utc";
 import {
   format,
+  addDays as originalAddDays,
   endOfDay as originalEndOfDay,
   endOfMonth as originalEndOfMonth,
+  endOfWeek as originalEndOfWeek,
   parseISO as originalParseISO,
   startOfDay as originalStartOfDay,
   startOfMonth as originalStartOfMonth,
@@ -43,6 +45,13 @@ export const startOfWeek = (date: Date) => {
   });
 };
 
+export const endOfWeek = (date: Date) => {
+  return originalEndOfWeek(date, {
+    in: utc,
+    weekStartsOn: 1,
+  });
+};
+
 export const startOfMonth = (date: Date) => {
   return originalStartOfMonth(date, {
     in: utc,
@@ -51,6 +60,12 @@ export const startOfMonth = (date: Date) => {
 
 export const endOfMonth = (date: Date) => {
   return originalEndOfMonth(date, {
+    in: utc,
+  });
+};
+
+export const addDays = (date: Date, amount: number) => {
+  return originalAddDays(date, amount, {
     in: utc,
   });
 };

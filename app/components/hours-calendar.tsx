@@ -8,7 +8,7 @@ import {
   startOfWeek,
 } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Link, href } from "react-router";
 import { cn } from "~/lib/classNames";
 import { formatDateString, parseDateString } from "~/lib/date-utils";
@@ -30,6 +30,8 @@ type HoursCalendarProps = {
   isCompact?: boolean;
   dailyDurations: DailyDurations;
   selectedDate: Date;
+  selectedMonth: Date;
+  setSelectedMonth: (date: Date) => void;
 };
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -68,9 +70,9 @@ const HoursCalendar = ({
   isCompact,
   dailyDurations,
   selectedDate,
+  selectedMonth,
+  setSelectedMonth,
 }: HoursCalendarProps) => {
-  const [selectedMonth, setSelectedMonth] = useState(selectedDate);
-
   const getDaysInMonth = (date: Date) => {
     const startDate = startOfMonth(date);
     const endDate = endOfMonth(date);
@@ -167,11 +169,11 @@ const HoursCalendar = ({
   };
 
   const handlePrevMonth = () => {
-    setSelectedMonth((prev) => addDays(startOfMonth(prev), -1));
+    setSelectedMonth(addDays(startOfMonth(selectedMonth), -1));
   };
 
   const handleNextMonth = () => {
-    setSelectedMonth((prev) => addDays(endOfMonth(prev), 1));
+    setSelectedMonth(addDays(endOfMonth(selectedMonth), 1));
   };
 
   const monthlyTotalDuration = useMemo(
