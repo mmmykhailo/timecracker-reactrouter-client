@@ -60,20 +60,6 @@ export default function OnlineReportPage() {
   const date = parseDateString(dateStr);
 
   useEffect(() => {
-    console.log(dailyDurationsFetcher.data, dailyDurationsFetcher.state);
-    if (
-      !dailyDurationsFetcher.data ||
-      dailyDurationsFetcher.state === "loading"
-    ) {
-      return;
-    }
-
-    if (dailyDurationsFetcher.data) {
-      console.log({ data: dailyDurationsFetcher.data });
-    }
-  }, [dailyDurationsFetcher.data, dailyDurationsFetcher.state]);
-
-  useEffect(() => {
     if (!isLoaded.current) {
       const url = href("/o/daily-durations");
       const searchParams = new URLSearchParams();
