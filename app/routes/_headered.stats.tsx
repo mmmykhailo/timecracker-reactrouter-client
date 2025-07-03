@@ -4,7 +4,9 @@ import { get as idbGet, del as idbDel } from "idb-keyval";
 import {
   calculateDailyDurations,
   calculateMonthlyDurations,
+  calculateQuarterlyDurations,
   calculateWeeklyDurations,
+  calculateYearlyDurations,
   readReports,
 } from "~/lib/reports";
 import { MonthlyProjectHoursChart } from "~/components/stats/monthly-project-hours-chart";
@@ -31,20 +33,26 @@ export async function clientLoader() {
 
     const reportsPromise = readReports(rootHandle);
 
-    const dailyDurationsPromise = Promise.resolve(
-      calculateDailyDurations(await reportsPromise),
+    const dailyDurationsPromise = reportsPromise.then(calculateDailyDurations);
+    const monthlyDurationsPromise = dailyDurationsPromise.then(
+      calculateMonthlyDurations,
     );
-    const monthlyDurationsPromise = Promise.resolve(
-      calculateMonthlyDurations(await dailyDurationsPromise),
+    const weeklyDurationsPromise = dailyDurationsPromise.then(
+      calculateWeeklyDurations,
     );
-    const weeklyDurationsPromise = Promise.resolve(
-      calculateWeeklyDurations(await dailyDurationsPromise),
+    const quarterlyDurationsPromise = monthlyDurationsPromise.then(
+      calculateQuarterlyDurations,
+    );
+    const yearlyDurationsPromise = quarterlyDurationsPromise.then(
+      calculateYearlyDurations,
     );
 
     return {
       dailyDurationsPromise,
       monthlyDurationsPromise,
       weeklyDurationsPromise,
+      quarterlyDurationsPromise,
+      yearlyDurationsPromise,
     };
   } catch (e) {
     console.error(e);
@@ -58,6 +66,8 @@ export default function Home() {
     dailyDurationsPromise,
     weeklyDurationsPromise,
     monthlyDurationsPromise,
+    quarterlyDurationsPromise,
+    yearlyDurationsPromise,
   } = useLoaderData<typeof clientLoader>();
 
   return (
@@ -93,6 +103,8 @@ export default function Home() {
                 dailyDurations={{}}
                 weeklyDurations={{}}
                 monthlyDurations={{}}
+                quarterlyDurations={{}}
+                yearlyDurations={{}}
               />
             }
           >
@@ -101,13 +113,23 @@ export default function Home() {
                 dailyDurationsPromise,
                 weeklyDurationsPromise,
                 monthlyDurationsPromise,
+                quarterlyDurationsPromise,
+                yearlyDurationsPromise,
               ])}
             >
-              {([dailyDurations, weeklyDurations, monthlyDurations]) => (
+              {([
+                dailyDurations,
+                weeklyDurations,
+                monthlyDurations,
+                quarterlyDurations,
+                yearlyDurations,
+              ]) => (
                 <DetailedTotals
                   dailyDurations={dailyDurations}
                   weeklyDurations={weeklyDurations}
                   monthlyDurations={monthlyDurations}
+                  quarterlyDurations={quarterlyDurations}
+                  yearlyDurations={yearlyDurations}
                 />
               )}
             </Await>

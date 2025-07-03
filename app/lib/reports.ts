@@ -101,10 +101,26 @@ export type MonthlyDurationsItem = {
   byProjectDescription: DurationsByProjectDescription;
   hasNegativeDuration?: boolean;
 };
+export type QuarterlyDurationsItem = {
+  totalDuration: number;
+  byProject: DurationsByProject;
+  byProjectActivity: DurationsByProjectActivity;
+  byProjectDescription: DurationsByProjectDescription;
+  hasNegativeDuration?: boolean;
+};
+export type YearlyDurationsItem = {
+  totalDuration: number;
+  byProject: DurationsByProject;
+  byProjectActivity: DurationsByProjectActivity;
+  byProjectDescription: DurationsByProjectDescription;
+  hasNegativeDuration?: boolean;
+};
 
 export type DailyDurations = Record<string, DailyDurationsItem>; // key is yyyyMMdd
 export type WeeklyDurations = Record<string, WeeklyDurationsItem>; // key is yyyyMMdd of week start
 export type MonthlyDurations = Record<string, MonthlyDurationsItem>; // key is yyyyMM
+export type QuarterlyDurations = Record<string, QuarterlyDurationsItem>; // key is yyyyQQ (QQ is quarter number)
+export type YearlyDurations = Record<string, YearlyDurationsItem>; // key is yyyy
 
 export const calculateDailyDurations = (reports: Reports): DailyDurations => {
   return Object.entries(reports).reduce((acc, [date, dayReport]) => {
@@ -286,6 +302,129 @@ export const calculateMonthlyDurations = (
 
     return acc;
   }, {} as MonthlyDurations);
+};
+
+export const calculateQuarterlyDurations = (
+  monthlyDurations: MonthlyDurations,
+): QuarterlyDurations => {
+  return Object.entries(monthlyDurations).reduce((acc, [yearMonth, monthData]) => {
+    const yearString = yearMonth.slice(0, 4);
+    const month = Number.parseInt(yearMonth.slice(4, 6));
+    const quarter = Math.ceil(month / 3);
+    const yearQuarter = `${yearString}${quarter}`;
+    
+    if (!acc[yearQuarter]) {
+      acc[yearQuarter] = {
+        totalDuration: 0,
+        byProject: {},
+        byProjectActivity: {},
+        byProjectDescription: {},
+        hasNegativeDuration: false,
+      };
+    }
+    
+    acc[yearQuarter].totalDuration += monthData.totalDuration;
+    
+    for (const { project, duration } of Object.values(monthData.byProject)) {
+      acc[yearQuarter].byProject[project] = {
+        type: "byProject",
+        project: project,
+        duration: (acc[yearQuarter].byProject[project]?.duration || 0) + duration,
+      };
+    }
+    
+    for (const { project, activity, duration } of Object.values(
+      monthData.byProjectActivity,
+    )) {
+      const key = `${project}/${activity}`;
+      acc[yearQuarter].byProjectActivity[key] = {
+        type: "byProjectActivity",
+        project,
+        activity,
+        duration:
+          (acc[yearQuarter].byProjectActivity[key]?.duration || 0) + duration,
+      };
+    }
+    
+    for (const { project, description, duration } of Object.values(
+      monthData.byProjectDescription,
+    )) {
+      const key = `${project}/${description}`;
+      acc[yearQuarter].byProjectDescription[key] = {
+        type: "byProjectDescription",
+        project,
+        description,
+        duration:
+          (acc[yearQuarter].byProjectDescription[key]?.duration || 0) + duration,
+      };
+    }
+    
+    if (monthData.hasNegativeDuration) {
+      acc[yearQuarter].hasNegativeDuration = true;
+    }
+    
+    return acc;
+  }, {} as QuarterlyDurations);
+};
+
+export const calculateYearlyDurations = (
+  quarterlyDurations: QuarterlyDurations,
+): YearlyDurations => {
+  return Object.entries(quarterlyDurations).reduce((acc, [yearQuarter, quarterData]) => {
+    const year = yearQuarter.slice(0, 4);
+    
+    if (!acc[year]) {
+      acc[year] = {
+        totalDuration: 0,
+        byProject: {},
+        byProjectActivity: {},
+        byProjectDescription: {},
+        hasNegativeDuration: false,
+      };
+    }
+    
+    acc[year].totalDuration += quarterData.totalDuration;
+    
+    for (const { project, duration } of Object.values(quarterData.byProject)) {
+      acc[year].byProject[project] = {
+        type: "byProject",
+        project: project,
+        duration: (acc[year].byProject[project]?.duration || 0) + duration,
+      };
+    }
+    
+    for (const { project, activity, duration } of Object.values(
+      quarterData.byProjectActivity,
+    )) {
+      const key = `${project}/${activity}`;
+      acc[year].byProjectActivity[key] = {
+        type: "byProjectActivity",
+        project,
+        activity,
+        duration:
+          (acc[year].byProjectActivity[key]?.duration || 0) + duration,
+      };
+    }
+    
+    for (const { project, description, duration } of Object.values(
+      quarterData.byProjectDescription,
+    )) {
+      const key = `${project}/${description}`;
+      acc[year].byProjectDescription[key] = {
+        type: "byProjectDescription",
+        project,
+        description,
+        duration:
+          (acc[year].byProjectDescription[key]?.duration || 0) + duration,
+      };
+    }
+    
+    if (quarterData.hasNegativeDuration) {
+      acc[year].hasNegativeDuration = true;
+    }
+    
+    return acc;
+  }, {} as YearlyDurations);
 };
 
 export function parseReport(input: string): {

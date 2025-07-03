@@ -12,7 +12,9 @@ import type {
   DailyDurations,
   GroupedDuration,
   MonthlyDurations,
+  QuarterlyDurations,
   WeeklyDurations,
+  YearlyDurations,
 } from "~/lib/reports";
 import { DatePicker } from "../ui/date-picker";
 import { format, getISOWeek, getYear } from "date-fns";
@@ -31,16 +33,20 @@ type DetailedTotalsProps = {
   dailyDurations: DailyDurations;
   weeklyDurations: WeeklyDurations;
   monthlyDurations: MonthlyDurations;
+  quarterlyDurations: QuarterlyDurations;
+  yearlyDurations: YearlyDurations;
   className?: string;
 };
 
-type PeriodType = "daily" | "weekly" | "monthly";
+type PeriodType = "daily" | "weekly" | "monthly" | "quarterly" | "yearly";
 type GroupType = "project" | "activity" | "description";
 
 export function DetailedTotals({
   dailyDurations,
   weeklyDurations,
   monthlyDurations,
+  quarterlyDurations,
+  yearlyDurations,
   className,
 }: DetailedTotalsProps) {
   const [selectedPeriodType, setSelectedPeriodType] =
@@ -56,9 +62,16 @@ export function DetailedTotals({
     if (selectedPeriodType === "monthly") {
       return format(selectedDate, "MMM yyyy");
     }
+    if (selectedPeriodType === "quarterly") {
+      return format(selectedDate, "yyyy 'Q'Q");
+    }
+    if (selectedPeriodType === "yearly") {
+      return format(selectedDate, "yyyy");
+    }
     return format(selectedDate, "PP");
   }, [selectedPeriodType, selectedDate]);
 
+  console.log({ yearlyDurations });
   const data = useMemo(() => {
     switch (selectedPeriodType) {
       case "daily": {
@@ -96,6 +109,29 @@ export function DetailedTotals({
         }
         return monthlyDuration?.byProjectDescription || {};
       }
+      case "quarterly": {
+        const quarterlyDuration =
+          quarterlyDurations[format(selectedDate, "yyyyQ")];
+
+        if (selectedGroupType === "project") {
+          return quarterlyDuration?.byProject || {};
+        }
+        if (selectedGroupType === "activity") {
+          return quarterlyDuration?.byProjectActivity || {};
+        }
+        return quarterlyDuration?.byProjectDescription || {};
+      }
+      case "yearly": {
+        const yearlyDuration = yearlyDurations[format(selectedDate, "yyyy")];
+
+        if (selectedGroupType === "project") {
+          return yearlyDuration?.byProject || {};
+        }
+        if (selectedGroupType === "activity") {
+          return yearlyDuration?.byProjectActivity || {};
+        }
+        return yearlyDuration?.byProjectDescription || {};
+      }
     }
   }, [
     selectedPeriodType,
@@ -104,6 +140,8 @@ export function DetailedTotals({
     dailyDurations,
     weeklyDurations,
     monthlyDurations,
+    quarterlyDurations,
+    yearlyDurations,
   ]);
 
   const dataEntries = useMemo(() => {
@@ -141,6 +179,8 @@ export function DetailedTotals({
               <SelectItem value="daily">Daily</SelectItem>
               <SelectItem value="weekly">Weekly</SelectItem>
               <SelectItem value="monthly">Monthly</SelectItem>
+              <SelectItem value="quarterly">Quarterly</SelectItem>
+              <SelectItem value="yearly">Yearly</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -164,6 +204,8 @@ export function DetailedTotals({
           {selectedPeriodType === "daily" && <Label>Date</Label>}
           {selectedPeriodType === "weekly" && <Label>Week</Label>}
           {selectedPeriodType === "monthly" && <Label>Month</Label>}
+          {selectedPeriodType === "quarterly" && <Label>Quarter</Label>}
+          {selectedPeriodType === "yearly" && <Label>Year</Label>}
           <DatePicker
             selectedLabel={datePickerLabel}
             selectedDate={selectedDate}
